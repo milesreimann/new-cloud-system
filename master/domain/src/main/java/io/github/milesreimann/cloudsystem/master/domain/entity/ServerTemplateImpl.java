@@ -1,0 +1,94 @@
+package io.github.milesreimann.cloudsystem.master.domain.entity;
+
+import io.github.milesreimann.cloudsystem.api.entity.ServerGroup;
+import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
+import io.github.milesreimann.cloudsystem.api.model.Resources;
+
+import java.util.Objects;
+
+/**
+ * @author Miles R.
+ * @since 28.12.2025
+ */
+public class ServerTemplateImpl implements ServerTemplate {
+    private final Long id;
+    private final String abbreviation;
+    private final String name;
+    private final ServerGroup group;
+    private final int minServers;
+    private final Integer maxServers;
+    private final Resources requirements;
+    private final boolean active;
+
+    public ServerTemplateImpl(
+        Long id,
+        String abbreviation,
+        String name,
+        ServerGroup group,
+        int minServers,
+        Integer maxServers,
+        Resources requirements,
+        boolean active
+    ) {
+        this.id = id;
+        this.abbreviation = abbreviation;
+        this.name = name;
+        this.group = group;
+        this.minServers = minServers;
+        this.maxServers = maxServers;
+        this.requirements = requirements;
+        this.active = active;
+    }
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public ServerGroup getGroup() {
+        return group;
+    }
+
+    @Override
+    public int getMinServers() {
+        return minServers;
+    }
+
+    @Override
+    public Integer getMaxServers() {
+        return maxServers;
+    }
+
+    @Override
+    public Resources getRequirements() {
+        return requirements;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ServerTemplateImpl that = (ServerTemplateImpl) o;
+        return minServers == that.minServers && active == that.active && Objects.equals(id, that.id) && Objects.equals(abbreviation, that.abbreviation) && Objects.equals(name, that.name) && Objects.equals(group, that.group) && Objects.equals(maxServers, that.maxServers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, abbreviation, name, group, minServers, maxServers, active);
+    }
+}

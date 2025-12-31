@@ -1,0 +1,6 @@
+rootProject.name = 'cloud-system'
+include 'api'
+include 'master'
+include 'master:domain'
+include 'master:application'
+include 'master:adapter'
