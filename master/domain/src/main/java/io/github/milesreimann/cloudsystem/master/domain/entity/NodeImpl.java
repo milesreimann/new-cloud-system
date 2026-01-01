@@ -79,7 +79,8 @@ public class NodeImpl implements Node {
         return usage;
     }
 
-    public void setUsage(Resources usage) {
+    @Override
+    public void updateUsage(Resources usage) {
         this.usage = usage;
     }
 
@@ -93,5 +94,18 @@ public class NodeImpl implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(name, hostname, ipAddress, status, labels, capacity);
+    }
+
+    @Override
+    public String toString() {
+        return "NodeImpl{" +
+            "name='" + name + '\'' +
+            ", hostname='" + hostname + '\'' +
+            ", ipAddress='" + ipAddress + '\'' +
+            ", status=" + status +
+            ", labels=" + labels +
+            ", capacity=" + capacity +
+            ", usage=" + usage +
+            '}';
     }
 }

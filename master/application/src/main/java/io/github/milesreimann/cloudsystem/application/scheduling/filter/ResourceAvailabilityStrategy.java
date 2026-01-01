@@ -26,6 +26,7 @@ public class ResourceAvailabilityStrategy implements NodeFilterStrategy {
 
     private boolean hasEnoughResources(Node node, ServerTemplate template) {
         Resources available = node.getCapacity().subtract(node.getUsage());
+        System.out.println(node.getName() + " ; " + " available : " + available + " - needed : " + template.getRequirements());
         return fitsWithMargin(available, template.getRequirements());
     }
 

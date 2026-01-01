@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageProvider;
+import io.github.milesreimann.cloudsystem.master.adapter.util.K8sMetricParser;
 import io.github.milesreimann.cloudsystem.master.domain.model.EmptyResources;
 import io.github.milesreimann.cloudsystem.master.domain.model.ResourcesImpl;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,8 @@ public class K8sNodeUsageProvider implements NodeUsageProvider {
         Quantity memory = metrics.getUsage().get("memory");
 
         return new ResourcesImpl(
-            Quantity.getAmountInBytes(cpu).doubleValue(),
-            Quantity.getAmountInBytes(memory).doubleValue() / (1024.0 * 1024.0)
+            K8sMetricParser.parseCpu(cpu),
+            K8sMetricParser.parseMemory(memory)
         );
     }
 }

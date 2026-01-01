@@ -2,6 +2,7 @@ package io.github.milesreimann.cloudsystem.master.adapter.mapper;
 
 import io.fabric8.kubernetes.api.model.NodeAddress;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.github.milesreimann.cloudsystem.master.adapter.util.K8sMetricParser;
 import io.github.milesreimann.cloudsystem.master.domain.entity.NodeImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.EmptyResources;
 import io.github.milesreimann.cloudsystem.master.domain.model.LabelImpl;
@@ -90,21 +91,9 @@ public class NodeMapper {
         Quantity cpu = k8sNode.getStatus().getCapacity().get("cpu");
         Quantity memory = k8sNode.getStatus().getCapacity().get("memory");
 
-        return new ResourcesImpl(parseCpu(cpu), parseMemory(memory));
-    }
-
-    private double parseCpu(Quantity cpu) {
-        return cpu != null && cpu.getAmount() != null
-            ? Double.parseDouble(cpu.getAmount())
-            : -1D;
-    }
-
-    private double parseMemory(Quantity memory) {
-        if (memory == null || memory.getAmount() == null) {
-            return 0;
-        }
-
-        double bytes = Double.parseDouble(memory.getAmount());
-        return bytes / (1024.0 * 1024.0);
+        return new ResourcesImpl(
+            K8sMetricParser.parseCpu(cpu),
+            K8sMetricParser.parseMemory(memory)
+        );
     }
 }

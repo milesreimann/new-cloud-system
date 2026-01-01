@@ -50,12 +50,12 @@ public class K8sNodeWatcher implements Watcher<io.fabric8.kubernetes.api.model.N
 
         switch (action) {
             case ADDED -> {
-                nodeCache.add(node);
+                nodeCache.put(node.getName(), node);
                 eventPublisher.publishEvent(new NodeAddEventImpl(node));
                 log.info("Node added: {}", node);
             }
             case MODIFIED -> {
-                Node oldNode = nodeCache.add(node);
+                Node oldNode = nodeCache.put(node.getName(), node);
 
                 if (oldNode != null) {
                     checkForStatusChange(node, oldNode);

@@ -33,7 +33,7 @@ public class JpaServerTemplate implements ServerTemplate {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "group_id", insertable = false, updatable = false)
     private JpaServerGroup group;
 

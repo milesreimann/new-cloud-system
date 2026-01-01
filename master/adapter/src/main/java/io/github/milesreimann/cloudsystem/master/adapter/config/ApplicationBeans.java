@@ -3,6 +3,9 @@ package io.github.milesreimann.cloudsystem.master.adapter.config;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.github.milesreimann.cloudsystem.application.cache.NodeCache;
+import io.github.milesreimann.cloudsystem.application.cache.ServerCache;
+import io.github.milesreimann.cloudsystem.application.cache.ServerTemplateCache;
+import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;
 import io.github.milesreimann.cloudsystem.application.service.NodeService;
 import io.github.milesreimann.cloudsystem.application.service.NodeUsageService;
 import io.github.milesreimann.cloudsystem.application.service.ServerSchedulingService;
@@ -10,6 +13,8 @@ import io.github.milesreimann.cloudsystem.application.scheduling.scoring.LeastLo
 import io.github.milesreimann.cloudsystem.application.scheduling.scoring.PreferredLabelScore;
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.RequiredLabelStrategy;
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.ResourceAvailabilityStrategy;
+import io.github.milesreimann.cloudsystem.application.service.ServerService;
+import io.github.milesreimann.cloudsystem.application.service.ServerTemplateService;
 import io.github.milesreimann.cloudsystem.master.adapter.mapper.NodeMapper;
 import io.github.milesreimann.cloudsystem.master.adapter.out.K8sNodeUsageProvider;
 import io.github.milesreimann.cloudsystem.master.adapter.watcher.K8sNodeWatcher;
@@ -76,9 +81,38 @@ public class ApplicationBeans {
     }
 
     @Bean
-    public ServerSchedulingService serverSchedulingService(NodeService nodeService) {
+    public ServerTemplateCache serverTemplateCache() {
+        return new ServerTemplateCache();
+    }
+
+    @Bean
+    public ServerTemplateService serverTemplateService(
+        ServerTemplateRepository serverTemplateRepository,
+        ServerTemplateCache serverTemplateCache
+    ) {
+        return new ServerTemplateService(serverTemplateRepository, serverTemplateCache);
+    }
+
+    @Bean
+    public ServerCache serverCache() {
+        return new ServerCache();
+    }
+
+    @Bean
+    public ServerService serverService(ServerCache serverCache) {
+        return new ServerService(serverCache);
+    }
+
+    @Bean
+    public ServerSchedulingService serverSchedulingService(
+        NodeService nodeService,
+        ServerTemplateService serverTemplateService,
+        ServerService serverService
+    ) {
         return new ServerSchedulingService(
             nodeService,
+            serverTemplateService,
+            serverService,
             List.of(
                 new ResourceAvailabilityStrategy(1),
                 new RequiredLabelStrategy()
