@@ -1,4 +1,4 @@
-package io.github.milesreimann.cloudsystem.master.adapter.util;
+package io.github.milesreimann.cloudsystem.k8s.util;
 
 import io.fabric8.kubernetes.api.model.Quantity;
 

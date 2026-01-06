@@ -1,6 +1,6 @@
 package io.github.milesreimann.cloudsystem.application.service;
 
-import io.github.milesreimann.cloudsystem.api.entity.Node;
+import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.NodeFilterStrategy;
@@ -39,40 +39,43 @@ public class ServerSchedulingService {
         this.scoringStrategies = scoringStrategies;
     }
 
-    // TODO: event driven scheduling
+    public void scheduleServerTemplates() {
+        serverTemplateService.listServerTemplates(true).forEach(serverTemplate -> scheduleServerTemplate(serverTemplate.getId()));
+    }
 
-    public void schedule() {
-        log.debug("Scheduling servers...");
+    public void scheduleServerTemplate(long templateId) {
+        serverTemplateService.getServerTemplateById(templateId).ifPresentOrElse(
+            serverTemplate -> {
+                log.debug("Scheduling server template: {} (id={})", serverTemplate.getName(), serverTemplate.getId());
 
-        for (ServerTemplate serverTemplate : serverTemplateService.listServerTemplates(true)) {
-            log.debug("Scheduling server template: {} (id={})", serverTemplate.getName(), serverTemplate.getId());
+                if (serverTemplate.getMinServers() == 0) {
+                    log.trace("Template '{}' minServers=0, skipping", serverTemplate.getName());
+                    return;
+                }
 
-            if (serverTemplate.getMinServers() == 0) {
-                log.trace("Template '{}' minServers=0, skipping", serverTemplate.getName());
-                continue;
-            }
+                long serverCount = serverService.getServerCountForTemplate(serverTemplate.getId());
 
-            long serverCount = serverService.getServerCountForTemplate(serverTemplate.getId());
+                if (serverCount >= serverTemplate.getMaxServers()) {
+                    log.trace("Max servers reached for template '{}', skipping", serverTemplate.getName());
+                    return;
+                }
 
-            if (serverCount >= serverTemplate.getMaxServers()) {
-                log.trace("Max servers reached for template '{}', skipping", serverTemplate.getName());
-                continue;
-            }
+                long toStart = serverTemplate.getMinServers() - serverCount;
+                log.debug("{} servers to start for template '{}'", toStart, serverTemplate.getName());
 
-            long toStart = serverTemplate.getMinServers() - serverCount;
-            log.debug("{} servers to start for template '{}'", toStart, serverTemplate.getName());
+                for (int i = 0; i < toStart; i++) {
+                    final int finalI = i + 1;
 
-            for (int i = 0; i < toStart; i++) {
-                final int finalI = i;
+                    selectNodeForTemplate(serverTemplate).ifPresentOrElse(
+                        node -> log.info("Selected node '{}' for server #{} of template '{}'", node.getName(), finalI, serverTemplate.getName()),
+                        () -> log.warn("No suitable node available for template '{}'", serverTemplate.getName())
+                    );
 
-                selectNodeForTemplate(serverTemplate).ifPresentOrElse(
-                    node -> log.info("Selected node '{}' for server #{} of template '{}'", node.getName(), finalI, serverTemplate.getName()),
-                    () -> log.warn("No suitable node available for template '{}'", serverTemplate.getName())
-                );
-
-                // deploy or smth
-            }
-        }
+                    // deploy or smth
+                }
+            },
+            () -> log.warn("No server template found for id {}", templateId)
+        );
     }
 
     private Optional<Node> selectNodeForTemplate(ServerTemplate serverTemplate) {

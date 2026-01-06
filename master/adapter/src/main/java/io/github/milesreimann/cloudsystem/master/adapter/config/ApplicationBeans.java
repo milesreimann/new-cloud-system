@@ -2,10 +2,15 @@ package io.github.milesreimann.cloudsystem.master.adapter.config;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.github.milesreimann.cloudsystem.api.event.EventBus;
 import io.github.milesreimann.cloudsystem.application.cache.NodeCache;
 import io.github.milesreimann.cloudsystem.application.cache.ServerCache;
 import io.github.milesreimann.cloudsystem.application.cache.ServerTemplateCache;
+import io.github.milesreimann.cloudsystem.application.event.SimpleEventBus;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeRepository;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcher;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;
+import io.github.milesreimann.cloudsystem.application.service.NodeInitializationService;
 import io.github.milesreimann.cloudsystem.application.service.NodeService;
 import io.github.milesreimann.cloudsystem.application.service.NodeUsageService;
 import io.github.milesreimann.cloudsystem.application.service.ServerSchedulingService;
@@ -15,10 +20,9 @@ import io.github.milesreimann.cloudsystem.application.scheduling.filter.Required
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.ResourceAvailabilityStrategy;
 import io.github.milesreimann.cloudsystem.application.service.ServerService;
 import io.github.milesreimann.cloudsystem.application.service.ServerTemplateService;
-import io.github.milesreimann.cloudsystem.master.adapter.mapper.NodeMapper;
-import io.github.milesreimann.cloudsystem.master.adapter.out.K8sNodeUsageProvider;
-import io.github.milesreimann.cloudsystem.master.adapter.watcher.K8sNodeWatcher;
-import org.springframework.context.ApplicationEventPublisher;
+import io.github.milesreimann.cloudsystem.master.adapter.k8s.K8sNodeMapper;
+import io.github.milesreimann.cloudsystem.master.adapter.k8s.K8sNodeUsageProvider;
+import io.github.milesreimann.cloudsystem.master.adapter.k8s.K8sNodeWatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -43,8 +47,8 @@ public class ApplicationBeans {
     }
 
     @Bean
-    public NodeMapper nodeMapper() {
-        return new NodeMapper();
+    public K8sNodeMapper nodeMapper() {
+        return new K8sNodeMapper();
     }
 
     @Bean
@@ -53,18 +57,33 @@ public class ApplicationBeans {
     }
 
     @Bean
+    public EventBus eventBus() {
+        return new SimpleEventBus();
+    }
+
+    @Bean
     public K8sNodeWatcher k8sNodeWatcher(
-        ApplicationEventPublisher eventPublisher,
-        NodeMapper nodeMapper,
+        EventBus eventBus,
+        K8sNodeMapper nodeMapper,
         NodeCache nodeCache,
         KubernetesClient kubernetesClient
     ) {
         return new K8sNodeWatcher(
-            eventPublisher,
+            eventBus,
             nodeMapper,
             nodeCache,
             kubernetesClient
         );
+    }
+
+    @Bean
+    public NodeInitializationService nodeInitializationService(
+        NodeRepository nodeRepository,
+        NodeWatcher nodeWatcher,
+        NodeCache nodeCache,
+        EventBus eventBus
+    ) {
+        return new NodeInitializationService(nodeRepository, nodeWatcher, nodeCache, eventBus);
     }
 
     @Bean
@@ -73,11 +92,8 @@ public class ApplicationBeans {
     }
 
     @Bean
-    public NodeService nodeService(
-        NodeCache nodeCache,
-        K8sNodeWatcher nodeWatcher
-    ) {
-        return new NodeService(nodeCache, nodeWatcher);
+    public NodeService nodeService(NodeCache nodeCache) {
+        return new NodeService(nodeCache);
     }
 
     @Bean

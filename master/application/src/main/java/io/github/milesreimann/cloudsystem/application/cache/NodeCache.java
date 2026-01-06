@@ -1,6 +1,6 @@
 package io.github.milesreimann.cloudsystem.application.cache;
 
-import io.github.milesreimann.cloudsystem.api.entity.Node;
+import io.github.milesreimann.cloudsystem.api.runtime.Node;
 
 /**
  * @author Miles R.

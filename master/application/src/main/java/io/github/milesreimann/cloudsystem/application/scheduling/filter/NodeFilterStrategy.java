@@ -1,6 +1,6 @@
 package io.github.milesreimann.cloudsystem.application.scheduling.filter;
 
-import io.github.milesreimann.cloudsystem.api.entity.Node;
+import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 
 import java.util.List;

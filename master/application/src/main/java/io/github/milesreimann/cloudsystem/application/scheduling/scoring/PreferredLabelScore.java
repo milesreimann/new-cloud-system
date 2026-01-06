@@ -1,6 +1,6 @@
 package io.github.milesreimann.cloudsystem.application.scheduling.scoring;
 
-import io.github.milesreimann.cloudsystem.api.entity.Node;
+import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.Label;
 

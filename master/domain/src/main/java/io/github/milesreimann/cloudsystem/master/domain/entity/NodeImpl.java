@@ -1,6 +1,6 @@
 package io.github.milesreimann.cloudsystem.master.domain.entity;
 
-import io.github.milesreimann.cloudsystem.api.entity.Node;
+import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.model.Label;
 import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
 import io.github.milesreimann.cloudsystem.api.model.Resources;

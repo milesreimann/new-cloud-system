@@ -24,15 +24,15 @@ repositories {
 }
 
 dependencies {
+    implementation(project(':api'))
+    implementation(project(':master:domain'))
+    implementation(project(':master:application'))
+    implementation(project(':k8s'))
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'io.fabric8:kubernetes-client:7.4.0'
     implementation 'org.mapstruct:mapstruct:1.6.3'
-    implementation(project(':api'))
-    implementation(project(':master:domain'))
-    implementation(project(':master:application'))
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java:8.0.33'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

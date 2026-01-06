@@ -1,6 +1,6 @@
 package io.github.milesreimann.cloudsystem.application.scheduling.filter;
 
-import io.github.milesreimann.cloudsystem.api.entity.Node;
+import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 
@@ -26,7 +26,6 @@ public class ResourceAvailabilityStrategy implements NodeFilterStrategy {
 
     private boolean hasEnoughResources(Node node, ServerTemplate template) {
         Resources available = node.getCapacity().subtract(node.getUsage());
-        System.out.println(node.getName() + " ; " + " available : " + available + " - needed : " + template.getRequirements());
         return fitsWithMargin(available, template.getRequirements());
     }
 

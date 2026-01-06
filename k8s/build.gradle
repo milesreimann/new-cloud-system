@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group = 'io.github.milesreimann.cloud'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly(project(':api'))
+    compileOnly(project(':master:domain'))
+    compileOnly(project(':master:application'))
+    compileOnly 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'io.fabric8:kubernetes-client:7.4.0'
+}

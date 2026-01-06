@@ -28,7 +28,7 @@ public abstract class Cache<K, V> {
         return cache.values();
     }
 
-    public int size() {
-        return cache.size();
+    public boolean contains(K key) {
+        return cache.containsKey(key);
     }
 }

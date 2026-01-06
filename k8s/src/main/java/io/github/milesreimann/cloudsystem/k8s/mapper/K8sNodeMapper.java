@@ -1,17 +1,16 @@
-package io.github.milesreimann.cloudsystem.master.adapter.mapper;
+package io.github.milesreimann.cloudsystem.k8s.mapper;
 
 import io.fabric8.kubernetes.api.model.NodeAddress;
 import io.fabric8.kubernetes.api.model.Quantity;
-import io.github.milesreimann.cloudsystem.master.adapter.util.K8sMetricParser;
+import io.github.milesreimann.cloudsystem.api.model.Label;
+import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
+import io.github.milesreimann.cloudsystem.api.model.Resources;
+import io.github.milesreimann.cloudsystem.api.runtime.Node;
+import io.github.milesreimann.cloudsystem.k8s.util.K8sMetricParser;
 import io.github.milesreimann.cloudsystem.master.domain.entity.NodeImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.EmptyResources;
 import io.github.milesreimann.cloudsystem.master.domain.model.LabelImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.ResourcesImpl;
-import io.github.milesreimann.cloudsystem.api.entity.Node;
-import io.github.milesreimann.cloudsystem.api.model.Label;
-import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
-import io.github.milesreimann.cloudsystem.api.model.Resources;
-import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -21,12 +20,13 @@ import java.util.Set;
  * @author Miles R.
  * @since 26.12.2025
  */
-@Component
-public class NodeMapper {
+public class K8sNodeMapper {
+    // TODO: Port in Application, some cleanup
+
     private static final String STATUS_CONDITION_TYPE = "Ready";
     private static final String STATUS_ONLINE_VALUE = "True";
 
-    public Node fromK8sNode(io.fabric8.kubernetes.api.model.Node k8sNode) {
+    public Node toCloudNode(io.fabric8.kubernetes.api.model.Node k8sNode) {
         String name = k8sNode.getMetadata().getName();
         String hostname = k8sNode.getMetadata().getName();
         String ipAddress = parseIpAddress(k8sNode);

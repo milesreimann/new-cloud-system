@@ -1,10 +1,9 @@
 package io.github.milesreimann.cloudsystem.application.service;
 
 import io.github.milesreimann.cloudsystem.application.cache.NodeCache;
-import io.github.milesreimann.cloudsystem.api.entity.Node;
+import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.model.Label;
 import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
-import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +16,8 @@ import java.util.Optional;
 public class NodeService {
     private final NodeCache nodeCache;
 
-    public NodeService(NodeCache nodeCache, NodeWatcher nodeWatcher) {
+    public NodeService(NodeCache nodeCache) {
         this.nodeCache = nodeCache;
-
-        nodeWatcher.watch();
     }
 
     public Optional<Node> getNodeById(String nodeId) {

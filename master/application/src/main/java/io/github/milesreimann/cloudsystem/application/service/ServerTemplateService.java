@@ -1,6 +1,5 @@
 package io.github.milesreimann.cloudsystem.application.service;
 
-import io.github.milesreimann.cloudsystem.api.entity.ServerGroup;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.application.cache.ServerTemplateCache;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;
@@ -8,6 +7,7 @@ import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRep
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Miles R.
@@ -22,6 +22,10 @@ public class ServerTemplateService {
         this.serverTemplateCache = serverTemplateCache;
 
         warmUpCache();
+    }
+
+    public Optional<ServerTemplate> getServerTemplateById(long templateId) {
+        return serverTemplateCache.get(templateId);
     }
 
     public List<ServerTemplate> listServerTemplates(Boolean active) {
