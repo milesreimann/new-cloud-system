@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
 }
 
 group = 'io.github.milesreimann.cloud'
@@ -10,9 +10,9 @@ repositories {
 }
 
 dependencies {
+    api 'io.fabric8:kubernetes-client:7.4.0'
     compileOnly(project(':api'))
     compileOnly(project(':master:domain'))
     compileOnly(project(':master:application'))
     compileOnly 'org.slf4j:slf4j-api:2.0.17'
-    implementation 'io.fabric8:kubernetes-client:7.4.0'
 }

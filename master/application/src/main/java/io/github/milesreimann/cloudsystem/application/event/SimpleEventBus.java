@@ -14,14 +14,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 01.01.2026
  */
 public class SimpleEventBus implements EventBus {
-    private final Map<Class<?>, List<EventListener<?>>> listeners = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<EventListener<?>>> listenersByEventType = new ConcurrentHashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
     public <E extends CloudEvent> void publish(E event) {
         Class<?> type = event.getClass();
 
-        List<EventListener<?>> listeners = this.listeners.get(type);
+        List<EventListener<?>> listeners = listenersByEventType.get(type);
         if (listeners == null || listeners.isEmpty()) {
             return;
         }
@@ -31,7 +31,7 @@ public class SimpleEventBus implements EventBus {
 
     @Override
     public <E extends CloudEvent> void register(Class<E> eventType, EventListener<E> listener) {
-        listeners
+        listenersByEventType
             .computeIfAbsent(eventType, _ -> new ArrayList<>())
             .add(listener);
     }

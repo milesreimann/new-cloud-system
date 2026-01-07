@@ -8,6 +8,7 @@ import io.github.milesreimann.cloudsystem.application.cache.ServerCache;
 import io.github.milesreimann.cloudsystem.application.cache.ServerTemplateCache;
 import io.github.milesreimann.cloudsystem.application.event.SimpleEventBus;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeRepository;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageScheduler;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcher;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;
 import io.github.milesreimann.cloudsystem.application.service.NodeInitializationService;
@@ -20,9 +21,9 @@ import io.github.milesreimann.cloudsystem.application.scheduling.filter.Required
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.ResourceAvailabilityStrategy;
 import io.github.milesreimann.cloudsystem.application.service.ServerService;
 import io.github.milesreimann.cloudsystem.application.service.ServerTemplateService;
-import io.github.milesreimann.cloudsystem.master.adapter.k8s.K8sNodeMapper;
-import io.github.milesreimann.cloudsystem.master.adapter.k8s.K8sNodeUsageProvider;
-import io.github.milesreimann.cloudsystem.master.adapter.k8s.K8sNodeWatcher;
+import io.github.milesreimann.cloudsystem.k8s.mapper.K8sNodeMapper;
+import io.github.milesreimann.cloudsystem.k8s.provider.K8sNodeUsageProvider;
+import io.github.milesreimann.cloudsystem.k8s.watcher.K8sNodeWatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -63,13 +64,11 @@ public class ApplicationBeans {
 
     @Bean
     public K8sNodeWatcher k8sNodeWatcher(
-        EventBus eventBus,
         K8sNodeMapper nodeMapper,
         NodeCache nodeCache,
         KubernetesClient kubernetesClient
     ) {
         return new K8sNodeWatcher(
-            eventBus,
             nodeMapper,
             nodeCache,
             kubernetesClient
@@ -144,11 +143,13 @@ public class ApplicationBeans {
     public NodeUsageService nodeUsageService(
         NodeCache nodeCache,
         K8sNodeUsageProvider nodeUsageProvider,
+        NodeUsageScheduler nodeUsageScheduler,
         Executor nodeUsageExecutor
     ) {
         return new NodeUsageService(
             nodeCache,
             nodeUsageProvider,
+            nodeUsageScheduler,
             nodeUsageExecutor
         );
     }

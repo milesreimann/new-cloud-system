@@ -3,6 +3,7 @@ package io.github.milesreimann.cloudsystem.application.service;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 import io.github.milesreimann.cloudsystem.application.cache.NodeCache;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageProvider;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageScheduler;
 
 import java.util.concurrent.Executor;
 
@@ -13,12 +14,21 @@ import java.util.concurrent.Executor;
 public class NodeUsageService {
     private final NodeCache nodeCache;
     private final NodeUsageProvider nodeUsageProvider;
+    private final NodeUsageScheduler nodeUsageScheduler;
     private final Executor executor;
 
-    public NodeUsageService(NodeCache nodeCache, NodeUsageProvider nodeUsageProvider, Executor executor) {
+    public NodeUsageService(
+        NodeCache nodeCache,
+        NodeUsageProvider nodeUsageProvider,
+        NodeUsageScheduler nodeUsageScheduler,
+        Executor executor
+    ) {
         this.nodeCache = nodeCache;
         this.nodeUsageProvider = nodeUsageProvider;
+        this.nodeUsageScheduler = nodeUsageScheduler;
         this.executor = executor;
+
+        nodeUsageScheduler.schedule();
     }
 
     public void refreshUsages() {
