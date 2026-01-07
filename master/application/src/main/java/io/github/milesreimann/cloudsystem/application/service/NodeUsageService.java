@@ -2,8 +2,8 @@ package io.github.milesreimann.cloudsystem.application.service;
 
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 import io.github.milesreimann.cloudsystem.application.cache.NodeCache;
-import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageProvider;
-import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageScheduler;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageProviderPort;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageSchedulerPort;
 
 import java.util.concurrent.Executor;
 
@@ -13,27 +13,25 @@ import java.util.concurrent.Executor;
  */
 public class NodeUsageService {
     private final NodeCache nodeCache;
-    private final NodeUsageProvider nodeUsageProvider;
-    private final NodeUsageScheduler nodeUsageScheduler;
+    private final NodeUsageProviderPort nodeUsageProviderPort;
     private final Executor executor;
 
     public NodeUsageService(
         NodeCache nodeCache,
-        NodeUsageProvider nodeUsageProvider,
-        NodeUsageScheduler nodeUsageScheduler,
+        NodeUsageProviderPort nodeUsageProviderPort,
+        NodeUsageSchedulerPort nodeUsageSchedulerPort,
         Executor executor
     ) {
         this.nodeCache = nodeCache;
-        this.nodeUsageProvider = nodeUsageProvider;
-        this.nodeUsageScheduler = nodeUsageScheduler;
+        this.nodeUsageProviderPort = nodeUsageProviderPort;
         this.executor = executor;
 
-        nodeUsageScheduler.schedule();
+        nodeUsageSchedulerPort.schedule();
     }
 
     public void refreshUsages() {
         nodeCache.values().forEach(node -> executor.execute(() -> {
-            Resources nodeUsage = nodeUsageProvider.getUsage(node.getName());
+            Resources nodeUsage = nodeUsageProviderPort.getUsage(node.getName());
             node.updateUsage(nodeUsage);
         }));
     }

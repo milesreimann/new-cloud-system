@@ -8,7 +8,7 @@ import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.application.cache.NodeCache;
 import io.github.milesreimann.cloudsystem.application.exception.MaxReconnectAttemptsExceededException;
 import io.github.milesreimann.cloudsystem.application.handler.NodeWatcherReconnectHandler;
-import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcher;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcherPort;
 import io.github.milesreimann.cloudsystem.k8s.mapper.K8sNodeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Miles R.
  * @since 26.12.2025
  */
-public class K8sNodeWatcher implements Watcher<io.fabric8.kubernetes.api.model.Node>, NodeWatcher {
+public class K8sNodeWatcher implements Watcher<io.fabric8.kubernetes.api.model.Node>, NodeWatcherPort {
     private static final Logger LOG = LoggerFactory.getLogger(K8sNodeWatcher.class);
 
     private final K8sNodeMapper nodeMapper;

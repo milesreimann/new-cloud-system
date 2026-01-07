@@ -8,13 +8,13 @@ import io.github.milesreimann.cloudsystem.application.cache.ServerCache;
 import io.github.milesreimann.cloudsystem.application.cache.ServerTemplateCache;
 import io.github.milesreimann.cloudsystem.application.event.SimpleEventBus;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeRepository;
-import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageScheduler;
-import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcher;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageSchedulerPort;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcherPort;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;
 import io.github.milesreimann.cloudsystem.application.service.NodeInitializationService;
 import io.github.milesreimann.cloudsystem.application.service.NodeService;
 import io.github.milesreimann.cloudsystem.application.service.NodeUsageService;
-import io.github.milesreimann.cloudsystem.application.service.ServerSchedulingService;
+import io.github.milesreimann.cloudsystem.application.service.ServerSchedulerService;
 import io.github.milesreimann.cloudsystem.application.scheduling.scoring.LeastLoadedScore;
 import io.github.milesreimann.cloudsystem.application.scheduling.scoring.PreferredLabelScore;
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.RequiredLabelStrategy;
@@ -78,7 +78,7 @@ public class ApplicationBeans {
     @Bean
     public NodeInitializationService nodeInitializationService(
         NodeRepository nodeRepository,
-        NodeWatcher nodeWatcher,
+        NodeWatcherPort nodeWatcher,
         NodeCache nodeCache,
         EventBus eventBus
     ) {
@@ -119,12 +119,12 @@ public class ApplicationBeans {
     }
 
     @Bean
-    public ServerSchedulingService serverSchedulingService(
+    public ServerSchedulerService serverSchedulingService(
         NodeService nodeService,
         ServerTemplateService serverTemplateService,
         ServerService serverService
     ) {
-        return new ServerSchedulingService(
+        return new ServerSchedulerService(
             nodeService,
             serverTemplateService,
             serverService,
@@ -143,7 +143,7 @@ public class ApplicationBeans {
     public NodeUsageService nodeUsageService(
         NodeCache nodeCache,
         K8sNodeUsageProvider nodeUsageProvider,
-        NodeUsageScheduler nodeUsageScheduler,
+        NodeUsageSchedulerPort nodeUsageScheduler,
         Executor nodeUsageExecutor
     ) {
         return new NodeUsageService(

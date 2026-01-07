@@ -1,6 +1,6 @@
 package io.github.milesreimann.cloudsystem.master.adapter.schedule;
 
-import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageScheduler;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageSchedulerPort;
 import io.github.milesreimann.cloudsystem.application.service.NodeUsageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class SpringNodeUsageScheduler implements NodeUsageScheduler {
+public class SpringNodeUsageScheduler implements NodeUsageSchedulerPort {
     private final NodeUsageService nodeUsageService;
 
     @Override

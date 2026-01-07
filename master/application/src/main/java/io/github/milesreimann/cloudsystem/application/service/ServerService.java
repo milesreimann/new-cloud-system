@@ -1,6 +1,9 @@
 package io.github.milesreimann.cloudsystem.application.service;
 
+import io.github.milesreimann.cloudsystem.api.entity.Server;
 import io.github.milesreimann.cloudsystem.application.cache.ServerCache;
+
+import java.util.UUID;
 
 /**
  * @author Miles R.
@@ -13,8 +16,16 @@ public class ServerService {
         this.serverCache = serverCache;
     }
 
-    public long getServerCountForTemplate(long templateId) {
-        return serverCache.values().stream()
+    public void addServer(Server server) {
+        serverCache.put(server.getUniqueId(), server);
+    }
+
+    public void removeServer(UUID uniqueId) {
+        serverCache.remove(uniqueId);
+    }
+
+    public int getServerCountForTemplate(long templateId) {
+        return (int) serverCache.values().stream()
             .filter(server -> server.getTemplateId() == templateId)
             .count();
     }

@@ -1,4 +1,4 @@
-package io.github.milesreimann.cloudsystem.application.event;
+package io.github.milesreimann.cloudsystem.master.adapter.event;
 
 import io.github.milesreimann.cloudsystem.api.event.CloudEvent;
 
