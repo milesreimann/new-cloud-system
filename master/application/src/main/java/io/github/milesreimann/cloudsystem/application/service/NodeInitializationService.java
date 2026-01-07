@@ -37,6 +37,7 @@ public class NodeInitializationService {
         LOG.info("Initializing NodeCache...");
 
         List<Node> nodes = nodeRepository.findAll();
+        LOG.debug("{} nodes found", nodes.size());
 
         nodes.forEach(node -> {
             nodeCache.put(node.getName(), node);

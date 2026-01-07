@@ -30,13 +30,13 @@ public class NodeWatcherReconnectHandler {
             throw new MaxReconnectAttemptsExceededException("NodeWatcher reached max reconnect attempts (" + maxAttempts + ")");
         }
 
-        LOG.info("Attempting to reconnect NodeWatcher (attempt {}/{})", currentAttempt, maxAttempts);
+        LOG.info("Attempting reconnect {}/{}", currentAttempt, maxAttempts);
 
         try {
             Thread.sleep(delayMs);
             reconnectRunnable.run();
             attempts.set(0);
-            LOG.info("NodeWatcher reconnected successfully");
+            LOG.info("Reconnected successfully");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw e;
