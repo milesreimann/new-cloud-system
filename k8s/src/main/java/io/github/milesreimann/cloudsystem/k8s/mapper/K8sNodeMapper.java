@@ -1,11 +1,11 @@
 package io.github.milesreimann.cloudsystem.k8s.mapper;
 
 import io.fabric8.kubernetes.api.model.NodeAddress;
-import io.fabric8.kubernetes.api.model.Quantity;
 import io.github.milesreimann.cloudsystem.api.model.Label;
 import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 import io.github.milesreimann.cloudsystem.api.runtime.Node;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeMapper;
 import io.github.milesreimann.cloudsystem.k8s.util.K8sMetricParser;
 import io.github.milesreimann.cloudsystem.master.domain.entity.NodeImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.LabelImpl;
@@ -19,15 +19,14 @@ import java.util.Set;
  * @author Miles R.
  * @since 26.12.2025
  */
-public class K8sNodeMapper {
+public class K8sNodeMapper implements NodeMapper<io.fabric8.kubernetes.api.model.Node> {
     private static final String STATUS_CONDITION_TYPE = "Ready";
     private static final String STATUS_ONLINE_VALUE = "True";
     private static final String ADDRESS_TYPE_INTERNAL_IP = "InternalIP";
-    private static final String RESOURCE_CPU = "cpu";
-    private static final String RESOURCE_MEMORY = "memory";
     private static final String DEFAULT_IP_ADDRESS = "0.0.0.0";
 
-    public Node toCloudNode(io.fabric8.kubernetes.api.model.Node k8sNode) {
+    @Override
+    public Node toDomain(io.fabric8.kubernetes.api.model.Node k8sNode) {
         String name = k8sNode.getMetadata().getName();
         String hostname = k8sNode.getMetadata().getName();
         String ipAddress = parseIpAddress(k8sNode);

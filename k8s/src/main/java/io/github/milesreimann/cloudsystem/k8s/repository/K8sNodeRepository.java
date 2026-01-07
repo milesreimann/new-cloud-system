@@ -23,7 +23,7 @@ public class K8sNodeRepository implements NodeRepository {
     @Override
     public List<Node> findAll() {
         return kubernetesClient.nodes().list().getItems().stream()
-            .map(nodeMapper::toCloudNode)
+            .map(nodeMapper::toDomain)
             .toList();
     }
 }
