@@ -22,6 +22,10 @@ public class ResourcesImpl extends AbstractResources {
         return new ResourcesImpl(cpu, memory);
     }
 
+    public static Resources empty() {
+        return new ResourcesImpl(0D, 0D);
+    }
+
     public double getMemory() {
         return memory;
     }

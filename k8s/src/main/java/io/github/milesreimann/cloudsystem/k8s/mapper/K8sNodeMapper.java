@@ -8,7 +8,6 @@ import io.github.milesreimann.cloudsystem.api.model.Resources;
 import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.k8s.util.K8sMetricParser;
 import io.github.milesreimann.cloudsystem.master.domain.entity.NodeImpl;
-import io.github.milesreimann.cloudsystem.master.domain.model.EmptyResources;
 import io.github.milesreimann.cloudsystem.master.domain.model.LabelImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.ResourcesImpl;
 
@@ -21,10 +20,12 @@ import java.util.Set;
  * @since 26.12.2025
  */
 public class K8sNodeMapper {
-    // TODO: Port in Application, some cleanup
-
     private static final String STATUS_CONDITION_TYPE = "Ready";
     private static final String STATUS_ONLINE_VALUE = "True";
+    private static final String ADDRESS_TYPE_INTERNAL_IP = "InternalIP";
+    private static final String RESOURCE_CPU = "cpu";
+    private static final String RESOURCE_MEMORY = "memory";
+    private static final String DEFAULT_IP_ADDRESS = "0.0.0.0";
 
     public Node toCloudNode(io.fabric8.kubernetes.api.model.Node k8sNode) {
         String name = k8sNode.getMetadata().getName();
@@ -41,16 +42,20 @@ public class K8sNodeMapper {
             status,
             labels,
             capacity,
-            new EmptyResources()
+            ResourcesImpl.empty()
         );
     }
 
     private String parseIpAddress(io.fabric8.kubernetes.api.model.Node k8sNode) {
+        if (k8sNode.getStatus() == null) {
+            return DEFAULT_IP_ADDRESS;
+        }
+
         return k8sNode.getStatus().getAddresses().stream()
-            .filter(a -> a.getType().equals("InternalIP"))
+            .filter(a -> a.getType().equals(ADDRESS_TYPE_INTERNAL_IP))
             .map(NodeAddress::getAddress)
             .findFirst()
-            .orElse("0.0.0.0");
+            .orElse(DEFAULT_IP_ADDRESS);
     }
 
     private Set<Label> parseLabels(Map<String, String> k8sLabels) {
@@ -68,10 +73,7 @@ public class K8sNodeMapper {
             return NodeStatus.UNKNOWN;
         }
 
-        boolean isOnline = k8sNodeStatus.getConditions().stream()
-            .anyMatch(condition -> condition.getType().equals(STATUS_CONDITION_TYPE) && condition.getStatus().equals(STATUS_ONLINE_VALUE));
-
-        if (!isOnline) {
+        if (!isNodeReady(k8sNodeStatus)) {
             return NodeStatus.OFFLINE;
         }
 
@@ -83,17 +85,18 @@ public class K8sNodeMapper {
         return NodeStatus.READY;
     }
 
+    private boolean isNodeReady(io.fabric8.kubernetes.api.model.NodeStatus k8sNodeStatus) {
+        return k8sNodeStatus.getConditions().stream()
+            .anyMatch(condition -> STATUS_CONDITION_TYPE.equals(condition.getType())
+                && STATUS_ONLINE_VALUE.equals(condition.getStatus()));
+    }
+
     private Resources parseCapacity(io.fabric8.kubernetes.api.model.Node k8sNode) {
-        if (k8sNode.getStatus().getCapacity() == null) {
-            return new EmptyResources();
+        io.fabric8.kubernetes.api.model.NodeStatus k8sNodeStatus = k8sNode.getStatus();
+        if (k8sNodeStatus == null || k8sNodeStatus.getCapacity() == null) {
+            return ResourcesImpl.empty();
         }
 
-        Quantity cpu = k8sNode.getStatus().getCapacity().get("cpu");
-        Quantity memory = k8sNode.getStatus().getCapacity().get("memory");
-
-        return new ResourcesImpl(
-            K8sMetricParser.parseCpu(cpu),
-            K8sMetricParser.parseMemory(memory)
-        );
+        return K8sMetricParser.parseResources(k8sNodeStatus.getCapacity());
     }
 }

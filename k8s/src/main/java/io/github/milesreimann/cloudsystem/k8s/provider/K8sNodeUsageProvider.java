@@ -1,12 +1,10 @@
 package io.github.milesreimann.cloudsystem.k8s.provider;
 
-import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageProvider;
 import io.github.milesreimann.cloudsystem.k8s.util.K8sMetricParser;
-import io.github.milesreimann.cloudsystem.master.domain.model.EmptyResources;
 import io.github.milesreimann.cloudsystem.master.domain.model.ResourcesImpl;
 
 /**
@@ -22,18 +20,12 @@ public class K8sNodeUsageProvider implements NodeUsageProvider {
 
     @Override
     public Resources getUsage(String nodeName) {
-        NodeMetrics metrics = kubernetesClient.top().nodes().withName("").metrics(nodeName);
+        NodeMetrics metrics = kubernetesClient.top().nodes().metrics(nodeName);
 
         if (metrics == null || metrics.getUsage() == null) {
-            return new EmptyResources();
+            return ResourcesImpl.empty();
         }
 
-        Quantity cpu = metrics.getUsage().get("cpu");
-        Quantity memory = metrics.getUsage().get("memory");
-
-        return new ResourcesImpl(
-            K8sMetricParser.parseCpu(cpu),
-            K8sMetricParser.parseMemory(memory)
-        );
+        return K8sMetricParser.parseResources(metrics.getUsage());
     }
 }
