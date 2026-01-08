@@ -161,8 +161,8 @@ public class ApplicationBeans {
     }
 
     @Bean
-    public ServerDeploymentPort serverDeploymentPort() {
-        return new K8sServerDeployment();
+    public ServerDeploymentPort serverDeploymentPort(KubernetesClient kubernetesClient) {
+        return new K8sServerDeployment(kubernetesClient);
     }
 
     @Bean
