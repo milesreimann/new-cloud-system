@@ -1,36 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.1'
-    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'io.github.milesreimann.cloud'
 version = '1.0-SNAPSHOT'
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(project(':api'))
-    implementation(project(':master:domain'))
-    implementation(project(':master:application'))
-    implementation(project(':k8s'))
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.mapstruct:mapstruct:1.6.3'
-    compileOnly 'org.projectlombok:lombok:1.18.42'
-    runtimeOnly 'mysql:mysql-connector-java:8.0.33'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.projectlombok:lombok:1.18.42'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
 }

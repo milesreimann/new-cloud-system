@@ -8,5 +8,6 @@ public enum NodeStatus {
     READY,
     OFFLINE,
     DRAINING,
+    NO_SCHEDULE,
     UNKNOWN;
 }
