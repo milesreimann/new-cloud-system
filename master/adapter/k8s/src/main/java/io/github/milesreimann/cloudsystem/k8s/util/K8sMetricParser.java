@@ -1,10 +1,12 @@
 package io.github.milesreimann.cloudsystem.k8s.util;
 
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.github.milesreimann.cloudsystem.api.model.Memory;
+import io.github.milesreimann.cloudsystem.api.model.MemoryUnit;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
+import io.github.milesreimann.cloudsystem.master.domain.model.MemoryImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.ResourcesImpl;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -37,13 +39,25 @@ public class K8sMetricParser {
             : 0D;
     }
 
-    private static double parseMemory(Quantity memory) {
+    private static Memory parseMemory(Quantity memory) {
         if (memory == null || memory.getAmount() == null) {
-            return 0D;
+            return MemoryImpl.empty();
         }
 
-        return Quantity.getAmountInBytes(memory)
-            .divide(BigDecimal.valueOf(1024 * 1024))
-            .doubleValue();
+        String format = memory.getFormat();
+        MemoryUnit unit;
+
+        if ("Ki".equalsIgnoreCase(format)) {
+            unit = MemoryUnit.KI;
+        } else if ("Gi".equalsIgnoreCase(format)) {
+            unit = MemoryUnit.GI;
+        } else {
+            unit = MemoryUnit.MI;
+        }
+
+        long bytes = Quantity.getAmountInBytes(memory).longValue();
+        long valueInUnit = unit.fromBytes(bytes);
+
+        return new MemoryImpl(valueInUnit, unit);
     }
 }

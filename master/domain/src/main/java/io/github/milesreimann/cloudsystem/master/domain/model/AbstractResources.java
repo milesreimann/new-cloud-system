@@ -1,5 +1,6 @@
 package io.github.milesreimann.cloudsystem.master.domain.model;
 
+import io.github.milesreimann.cloudsystem.api.model.Memory;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 
 /**
@@ -7,7 +8,7 @@ import io.github.milesreimann.cloudsystem.api.model.Resources;
  * @since 31.12.2025
  */
 public abstract class AbstractResources implements Resources {
-    protected abstract Resources createNew(double cpu, double memory);
+    protected abstract Resources createNew(double cpu, Memory memory);
 
     @Override
     public Resources add(Resources other) {
@@ -15,10 +16,11 @@ public abstract class AbstractResources implements Resources {
             return this;
         }
 
-        return createNew(
-            getCpu() + other.getCpu(),
-            getMemory() + other.getMemory()
-        );
+        double combinedCpu = getCpu() + other.getCpu();
+        long totalBytes = getMemory().toBytes() + other.getMemory().toBytes();
+        Memory combinedMemory = MemoryImpl.fromBytes(totalBytes, getMemory().getUnit());
+
+        return createNew(combinedCpu, combinedMemory);
     }
 
     @Override
@@ -27,10 +29,11 @@ public abstract class AbstractResources implements Resources {
             return this;
         }
 
-        return createNew(
-            getCpu() - other.getCpu(),
-            getMemory() - other.getMemory()
-        );
+        double remainingCpu = getCpu() - other.getCpu();
+        long remainingBytes = getMemory().toBytes() - other.getMemory().toBytes();
+        Memory remainingMemory = MemoryImpl.fromBytes(remainingBytes, getMemory().getUnit());
+
+        return createNew(remainingCpu, remainingMemory);
     }
 
     @Override
@@ -40,6 +43,6 @@ public abstract class AbstractResources implements Resources {
         }
 
         return getCpu() >= required.getCpu()
-            && getMemory() >= required.getMemory();
+            && getMemory().toBytes() >= required.getMemory().toBytes();
     }
 }

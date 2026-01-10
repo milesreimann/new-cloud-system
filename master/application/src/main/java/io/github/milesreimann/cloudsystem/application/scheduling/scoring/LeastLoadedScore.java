@@ -28,14 +28,14 @@ public class LeastLoadedScore implements NodeScoringStrategy {
     @Override
     public double score(Node node, ServerTemplate serverTemplate) {
         double cpuCapacity = node.getCapacity().getCpu();
-        double memoryCapacity = node.getCapacity().getMemory();
+        long memoryCapacityBytes = node.getCapacity().getMemory().toBytes();
 
-        if (cpuCapacity <= 0D || memoryCapacity <= 0D) {
+        if (cpuCapacity <= 0D || memoryCapacityBytes <= 0D) {
             return 0.0D;
         }
 
         double cpuLoad = node.getUsage().getCpu() / cpuCapacity;
-        double memoryLoad = node.getUsage().getMemory() / memoryCapacity;
+        double memoryLoad = (double) node.getUsage().getMemory().toBytes() / memoryCapacityBytes;
 
         double load = (cpuLoad * cpuWeight) + (memoryLoad * memoryWeight);
 

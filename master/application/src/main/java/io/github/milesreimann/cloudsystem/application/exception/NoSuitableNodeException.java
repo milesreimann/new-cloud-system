@@ -8,6 +8,6 @@ import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
  */
 public class NoSuitableNodeException extends RuntimeException {
     public NoSuitableNodeException(ServerTemplate serverTemplate) {
-        super("No suitable node available for template '" + serverTemplate.getName() + "' (" + serverTemplate.getId() + ")");
+        super("No suitable node available for template '" + serverTemplate.getName());
     }
 }

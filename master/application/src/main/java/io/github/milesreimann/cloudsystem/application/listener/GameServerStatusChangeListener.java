@@ -19,7 +19,7 @@ public class GameServerStatusChangeListener implements EventListener<GameServerS
     @Override
     public void handle(GameServerStatusChangeEvent event) {
         if (event.getOldStatus() == GameServerStatus.LOBBY && event.getNewStatus() == GameServerStatus.IN_GAME) {
-            serverSchedulingService.scheduleServerTemplate(event.getGameServer().getTemplateId());
+            serverSchedulingService.scheduleServerTemplate(event.getGameServer().getTemplate().getId());
         }
     }
 }

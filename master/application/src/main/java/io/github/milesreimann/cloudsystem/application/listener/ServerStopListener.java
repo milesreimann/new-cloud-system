@@ -21,10 +21,10 @@ public class ServerStopListener implements EventListener<ServerStopEvent> {
 
     @Override
     public void handle(ServerStopEvent event) {
-        serverService.removeServer(event.getServer().getUniqueId());
+        serverService.removeServer(event.getServer());
 
         if (!(event.getServer() instanceof GameServer)) {
-            serverSchedulingService.scheduleServerTemplate(event.getServer().getTemplateId());
+            serverSchedulingService.scheduleServerTemplate(event.getServer().getTemplate().getId());
         }
     }
 }

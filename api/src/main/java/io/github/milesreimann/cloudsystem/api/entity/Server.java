@@ -14,9 +14,9 @@ public interface Server {
 
     long getId();
 
-    //String getNodeId();
+    String getName();
 
-    long getTemplateId();
+    ServerTemplate getTemplate();
 
     ServerStatus getStatus();
 

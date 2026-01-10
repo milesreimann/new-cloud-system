@@ -1,5 +1,6 @@
 package io.github.milesreimann.cloudsystem.master.domain.model;
 
+import io.github.milesreimann.cloudsystem.api.model.Memory;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 
 import java.util.Objects;
@@ -10,28 +11,42 @@ import java.util.Objects;
  */
 public class ResourcesImpl extends AbstractResources {
     private final double cpu;
-    private final double memory;
+    private final Memory memory;
 
-    public ResourcesImpl(double cpu, double memory) {
+    public ResourcesImpl(double cpu, Memory memory) {
         this.cpu = cpu;
         this.memory = memory;
     }
 
+    public static Resources empty() {
+        return new ResourcesImpl(0D, MemoryImpl.empty());
+    }
+
     @Override
-    protected Resources createNew(double cpu, double memory) {
+    protected Resources createNew(double cpu, Memory memory) {
         return new ResourcesImpl(cpu, memory);
     }
 
-    public static Resources empty() {
-        return new ResourcesImpl(0D, 0D);
+    @Override
+    public double getCpu() {
+        return cpu;
     }
 
-    public double getMemory() {
+    @Override
+    public Memory getMemory() {
         return memory;
     }
 
-    public double getCpu() {
-        return cpu;
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ResourcesImpl resources = (ResourcesImpl) o;
+        return Double.compare(cpu, resources.cpu) == 0 && Objects.equals(memory, resources.memory);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cpu, memory);
     }
 
     @Override
@@ -40,17 +55,5 @@ public class ResourcesImpl extends AbstractResources {
             "cpu=" + cpu +
             ", memory=" + memory +
             '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        ResourcesImpl resources = (ResourcesImpl) o;
-        return Double.compare(cpu, resources.cpu) == 0 && Double.compare(memory, resources.memory) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(cpu, memory);
     }
 }

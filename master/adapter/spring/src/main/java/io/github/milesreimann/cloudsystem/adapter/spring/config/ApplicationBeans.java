@@ -8,11 +8,11 @@ import io.github.milesreimann.cloudsystem.application.cache.ServerCache;
 import io.github.milesreimann.cloudsystem.application.cache.ServerTemplateCache;
 import io.github.milesreimann.cloudsystem.application.event.SimpleEventBus;
 import io.github.milesreimann.cloudsystem.application.handler.NodeWatcherReconnectHandler;
-import io.github.milesreimann.cloudsystem.application.mapper.NodeMapper;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeRepository;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcherPort;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerDeploymentPort;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;
+import io.github.milesreimann.cloudsystem.application.scheduling.filter.NodeStatusStrategy;
 import io.github.milesreimann.cloudsystem.application.service.NodeInitializationService;
 import io.github.milesreimann.cloudsystem.application.service.NodeService;
 import io.github.milesreimann.cloudsystem.application.service.NodeUsageService;
@@ -28,6 +28,7 @@ import io.github.milesreimann.cloudsystem.k8s.node.K8sNodeRepository;
 import io.github.milesreimann.cloudsystem.k8s.node.K8sNodeUsageProvider;
 import io.github.milesreimann.cloudsystem.k8s.node.K8sNodeWatcher;
 import io.github.milesreimann.cloudsystem.k8s.server.K8sServerDeployment;
+import io.github.milesreimann.cloudsystem.k8s.server.K8sServerWatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -137,8 +138,9 @@ public class ApplicationBeans {
             serverService,
             serverDeploymentPort,
             List.of(
-                new ResourceAvailabilityStrategy(1),
-                new RequiredLabelStrategy()
+                new ResourceAvailabilityStrategy(),
+                new RequiredLabelStrategy(),
+                new NodeStatusStrategy()
             ),
             List.of(
                 new PreferredLabelScore(),
@@ -173,5 +175,10 @@ public class ApplicationBeans {
     @Bean
     public NodeWatcherReconnectHandler nodeWatcherReconnectHandler() {
         return new NodeWatcherReconnectHandler(5, 5000L);
+    }
+
+    @Bean
+    public K8sServerWatcher serverWatcher(KubernetesClient kubernetesClient) {
+        return new K8sServerWatcher(kubernetesClient);
     }
 }

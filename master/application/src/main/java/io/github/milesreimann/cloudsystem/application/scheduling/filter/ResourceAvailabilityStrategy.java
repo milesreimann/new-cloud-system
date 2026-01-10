@@ -11,12 +11,6 @@ import java.util.List;
  * @since 30.12.2025
  */
 public class ResourceAvailabilityStrategy implements NodeFilterStrategy {
-    private final int safetyMarginFactor;
-
-    public ResourceAvailabilityStrategy(int safetyMarginFactor) {
-        this.safetyMarginFactor = safetyMarginFactor;
-    }
-
     @Override
     public List<Node> filter(List<Node> candidates, ServerTemplate serverTemplate) {
         return candidates.stream()
@@ -26,15 +20,10 @@ public class ResourceAvailabilityStrategy implements NodeFilterStrategy {
 
     private boolean hasEnoughResources(Node node, ServerTemplate template) {
         Resources available = node.getCapacity().subtract(node.getUsage());
-        return fitsWithMargin(available, template.getRequirements());
-    }
+        Resources required = template.getRequirements();
 
-    private boolean fitsWithMargin(Resources resources, Resources required) {
-        double requiredCpu = required.getCpu() * (1.0 + safetyMarginFactor);
-        double requiredMemory = required.getMemory() * (1.0 + safetyMarginFactor);
-
-        return resources.getCpu() >= requiredCpu
-            && resources.getMemory() >= requiredMemory;
+        return available.getCpu() >= required.getCpu()
+            && available.getMemory().toBytes() >= required.getMemory().toBytes();
     }
 
     @Override

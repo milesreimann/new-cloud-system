@@ -5,6 +5,7 @@ import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
 import io.github.milesreimann.cloudsystem.application.exception.NoSuitableNodeException;
+import io.github.milesreimann.cloudsystem.application.exception.ServerDeploymentException;
 import io.github.milesreimann.cloudsystem.application.exception.ServerTemplateNotFoundException;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerDeploymentPort;
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.NodeFilterStrategy;
@@ -149,22 +150,25 @@ public class ServerSchedulerService {
                     node.getName(), position, totalCount, serverTemplate.getName()
                 );
 
-                return deploymentPort.deployServer(node, serverTemplate)
-                    .whenComplete((server, throwable) -> {
-                        if (throwable != null) {
-                            LOG.error(
-                                "Failed to deploy server {}/{} for template '{}' on node '{}'",
-                                position, totalCount, serverTemplate.getName(), node.getName(), throwable
-                            );
-                            return;
-                        }
+                Server server = serverService.addServer(serverTemplate);
 
-                        serverService.addServer(server);
-
+                return deploymentPort.deployServer(node, server)
+                    .thenApply(_ -> {
                         LOG.info(
-                            "Successfully deployed server {}/{} for template '{}': {} on node '{}'",
-                            position, totalCount, serverTemplate.getName(), server.getUniqueId(), node.getName()
+                            "Successfully deployed server {} ({}/{}) for template '{}': {} on node '{}'",
+                            server.getName(), position, totalCount, serverTemplate.getName(), server.getUniqueId(), node.getName()
                         );
+
+                        return server;
+                    })
+                    .exceptionally(t -> {
+                        LOG.error(
+                            "Failed to deploy server {}/{} for template '{}' on node '{}'",
+                            position, totalCount, serverTemplate.getName(), node.getName(), t
+                        );
+
+                        serverService.removeServer(server);
+                        throw new ServerDeploymentException(t);
                     });
             })
             .orElseGet(() -> {

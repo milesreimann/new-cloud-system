@@ -1,6 +1,7 @@
 package io.github.milesreimann.cloudsystem.master.domain.entity;
 
 import io.github.milesreimann.cloudsystem.api.entity.Server;
+import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.ServerStatus;
 
 import java.time.Instant;
@@ -13,25 +14,32 @@ import java.util.UUID;
 public class ServerImpl implements Server {
     private final UUID uniqueId;
     private final long id;
-    //private final String nodeId;
-    private final long templateId;
+    private final ServerTemplate template;
     private final ServerStatus status;
     private final Instant startedAt;
 
-    public ServerImpl(
+    private ServerImpl(
         UUID uniqueId,
         long id,
-        //String nodeId,
-        long templateId,
+        ServerTemplate template,
         ServerStatus status,
         Instant startedAt
     ) {
         this.uniqueId = uniqueId;
         this.id = id;
-        //this.nodeId = nodeId;
-        this.templateId = templateId;
+        this.template = template;
         this.status = status;
         this.startedAt = startedAt;
+    }
+
+    public static Server create(long id, ServerTemplate template) {
+        return new ServerImpl(
+            UUID.randomUUID(),
+            id,
+            template,
+            ServerStatus.CREATING,
+            Instant.now()
+        );
     }
 
     @Override
@@ -44,15 +52,14 @@ public class ServerImpl implements Server {
         return id;
     }
 
-    /*@Override
-    public String getNodeId() {
-        return nodeId;
+    @Override
+    public String getName() {
+        return template.getGroup().getAbbreviation() + "-" + getId();
     }
-     */
 
     @Override
-    public long getTemplateId() {
-        return templateId;
+    public ServerTemplate getTemplate() {
+        return template;
     }
 
     @Override

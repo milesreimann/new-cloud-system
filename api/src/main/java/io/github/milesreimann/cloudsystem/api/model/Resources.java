@@ -7,7 +7,7 @@ package io.github.milesreimann.cloudsystem.api.model;
 public interface Resources {
     double getCpu();
 
-    double getMemory();
+    Memory getMemory();
 
     Resources add(Resources other);
 

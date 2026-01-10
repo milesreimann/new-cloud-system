@@ -11,6 +11,8 @@ import java.util.Set;
  * @since 26.12.2025
  */
 public interface Node {
+    // TODO: Some Identifier?
+
     String getName();
 
     String getHostname();

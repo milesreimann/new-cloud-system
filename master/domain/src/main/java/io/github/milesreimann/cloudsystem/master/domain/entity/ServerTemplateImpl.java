@@ -1,10 +1,14 @@
 package io.github.milesreimann.cloudsystem.master.domain.entity;
 
+import io.github.milesreimann.cloudsystem.api.entity.DeploymentMetadata;
 import io.github.milesreimann.cloudsystem.api.entity.ServerGroup;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Miles R.
@@ -18,6 +22,9 @@ public class ServerTemplateImpl implements ServerTemplate {
     private final int minServers;
     private final Integer maxServers;
     private final Resources requirements;
+    private final Resources limits;
+    private final List<DeploymentMetadata> deploymentMetadata;
+    private final Map<String, String> environmentVariables;
     private final boolean active;
 
     public ServerTemplateImpl(
@@ -28,6 +35,9 @@ public class ServerTemplateImpl implements ServerTemplate {
         int minServers,
         Integer maxServers,
         Resources requirements,
+        Resources limits,
+        List<DeploymentMetadata> deploymentMetadata,
+        Map<String, String> environmentVariables,
         boolean active
     ) {
         this.id = id;
@@ -37,6 +47,9 @@ public class ServerTemplateImpl implements ServerTemplate {
         this.minServers = minServers;
         this.maxServers = maxServers;
         this.requirements = requirements;
+        this.limits = limits;
+        this.deploymentMetadata = deploymentMetadata;
+        this.environmentVariables = environmentVariables;
         this.active = active;
     }
 
@@ -73,6 +86,21 @@ public class ServerTemplateImpl implements ServerTemplate {
     @Override
     public Resources getRequirements() {
         return requirements;
+    }
+
+    @Override
+    public Optional<Resources> getLimits() {
+        return Optional.ofNullable(limits);
+    }
+
+    @Override
+    public List<DeploymentMetadata> getDeploymentMetadata() {
+        return deploymentMetadata;
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables;
     }
 
     @Override
