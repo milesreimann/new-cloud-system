@@ -7,7 +7,7 @@ import io.github.milesreimann.cloudsystem.api.model.Resources;
 import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.application.mapper.NodeMapper;
 import io.github.milesreimann.cloudsystem.k8s.util.K8sMetricParser;
-import io.github.milesreimann.cloudsystem.master.domain.entity.NodeImpl;
+import io.github.milesreimann.cloudsystem.master.domain.runtime.NodeImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.LabelImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.ResourcesImpl;
 

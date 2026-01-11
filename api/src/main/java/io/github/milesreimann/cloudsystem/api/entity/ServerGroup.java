@@ -22,4 +22,6 @@ public interface ServerGroup {
      Set<String> getPreferredNodeLabels();
 
      boolean isActive();
+
+     boolean isStatic();
 }

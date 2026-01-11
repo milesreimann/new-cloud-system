@@ -5,6 +5,7 @@ import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.ServerStatus;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -25,11 +26,11 @@ public class ServerImpl implements Server {
         ServerStatus status,
         Instant startedAt
     ) {
-        this.uniqueId = uniqueId;
+        this.uniqueId = Objects.requireNonNull(uniqueId, "uniqueId cannot be null");
         this.id = id;
-        this.template = template;
-        this.status = status;
-        this.startedAt = startedAt;
+        this.template = Objects.requireNonNull(template, "template cannot be null");
+        this.status = Objects.requireNonNull(status, "status cannot be null");
+        this.startedAt = Objects.requireNonNull(startedAt, "startedAt cannot be null");
     }
 
     public static Server create(long id, ServerTemplate template) {

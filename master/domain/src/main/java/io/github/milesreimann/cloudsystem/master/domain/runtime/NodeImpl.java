@@ -1,4 +1,4 @@
-package io.github.milesreimann.cloudsystem.master.domain.entity;
+package io.github.milesreimann.cloudsystem.master.domain.runtime;
 
 import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.model.Label;

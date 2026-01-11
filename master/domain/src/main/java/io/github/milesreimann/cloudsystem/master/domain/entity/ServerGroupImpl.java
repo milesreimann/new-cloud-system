@@ -29,9 +29,9 @@ public class ServerGroupImpl implements ServerGroup {
         boolean active
     ) {
         this.id = id;
-        this.abbreviation = abbreviation;
-        this.name = name;
-        this.type = type;
+        this.abbreviation = Objects.requireNonNull(abbreviation, "Abbreviation cannot be null");
+        this.name = Objects.requireNonNull(name, "Name cannot be null");
+        this.type = Objects.requireNonNull(type, "Type cannot be null");
         this.requiredNodeLabels = requiredNodeLabels;
         this.preferredNodeLabels = preferredNodeLabels;
         this.active = active;
@@ -82,5 +82,18 @@ public class ServerGroupImpl implements ServerGroup {
     @Override
     public int hashCode() {
         return Objects.hash(id, abbreviation, name, type, requiredNodeLabels, preferredNodeLabels, active);
+    }
+
+    @Override
+    public String toString() {
+        return "ServerGroupImpl{" +
+            "id=" + id +
+            ", abbreviation='" + abbreviation + '\'' +
+            ", name='" + name + '\'' +
+            ", type=" + type +
+            ", requiredNodeLabels=" + requiredNodeLabels +
+            ", preferredNodeLabels=" + preferredNodeLabels +
+            ", active=" + active +
+            '}';
     }
 }

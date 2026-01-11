@@ -41,12 +41,12 @@ public class ServerTemplateImpl implements ServerTemplate {
         boolean active
     ) {
         this.id = id;
-        this.abbreviation = abbreviation;
-        this.name = name;
-        this.group = group;
+        this.abbreviation = Objects.requireNonNull(abbreviation, "abbreviation cannot be null");
+        this.name = Objects.requireNonNull(name, "name cannot be null");
+        this.group = Objects.requireNonNull(group, "group cannot be null");
         this.minServers = minServers;
         this.maxServers = maxServers;
-        this.requirements = requirements;
+        this.requirements = Objects.requireNonNull(requirements, "requirements cannot be null");
         this.limits = limits;
         this.deploymentMetadata = deploymentMetadata;
         this.environmentVariables = environmentVariables;

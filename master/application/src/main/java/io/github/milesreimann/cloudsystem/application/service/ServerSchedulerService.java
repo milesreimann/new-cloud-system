@@ -175,7 +175,7 @@ public class ServerSchedulerService {
             return;
         }
 
-        LOG.info("Node {} reserved: {}", node.getName(), nodeReservationService.getReserved(node));
+        LOG.debug("Node {} reserved: {}", node.getName(), nodeReservationService.getReserved(node));
 
         LOG.debug(
             "Reserved resources on node '{}' for server {}/{} of template '{}'",
