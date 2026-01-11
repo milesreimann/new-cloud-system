@@ -42,9 +42,13 @@ public class ServerService {
     }
 
     public int getServerCountForTemplate(long templateId) {
-        return (int) serverCache.values().stream()
-            .filter(server -> server.getTemplate().getId() == templateId)
-            .count();
+        Object lock = templateLocks.computeIfAbsent(templateId, _ -> new Object());
+
+        synchronized (lock) {
+            return (int) serverCache.values().stream()
+                .filter(server -> server.getTemplate().getId() == templateId)
+                .count();
+        }
     }
 
     private long generateServerId(ServerGroup serverGroup) {
