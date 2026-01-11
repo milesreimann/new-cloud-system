@@ -1,5 +1,7 @@
 package io.github.milesreimann.cloudsystem.application.scheduling.scoring;
 
+import io.github.milesreimann.cloudsystem.api.model.CPU;
+import io.github.milesreimann.cloudsystem.api.model.Memory;
 import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 
@@ -27,15 +29,18 @@ public class LeastLoadedScore implements NodeScoringStrategy {
 
     @Override
     public double score(Node node, ServerTemplate serverTemplate) {
-        double cpuCapacity = node.getCapacity().getCpu();
-        long memoryCapacityBytes = node.getCapacity().getMemory().toBytes();
+        CPU cpuCapacity = node.getCapacity().getCpu();
+        CPU cpuUsage = node.getUsage().getCpu();
 
-        if (cpuCapacity <= 0D || memoryCapacityBytes <= 0D) {
+        Memory memoryCapacity = node.getCapacity().getMemory();
+        Memory memoryUsage = node.getUsage().getMemory();
+
+        if (cpuCapacity.getMillicores() <= 0 || memoryCapacity.toBytes() <= 0) {
             return 0.0D;
         }
 
-        double cpuLoad = node.getUsage().getCpu() / cpuCapacity;
-        double memoryLoad = (double) node.getUsage().getMemory().toBytes() / memoryCapacityBytes;
+        double cpuLoad = (double) cpuUsage.getMillicores() / cpuCapacity.getMillicores();
+        double memoryLoad = (double) memoryUsage.toBytes() / memoryCapacity.toBytes();
 
         double load = (cpuLoad * cpuWeight) + (memoryLoad * memoryWeight);
 

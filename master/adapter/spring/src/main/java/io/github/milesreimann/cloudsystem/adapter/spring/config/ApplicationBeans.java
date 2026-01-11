@@ -14,6 +14,7 @@ import io.github.milesreimann.cloudsystem.application.port.out.ServerDeploymentP
 import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.NodeStatusStrategy;
 import io.github.milesreimann.cloudsystem.application.service.NodeInitializationService;
+import io.github.milesreimann.cloudsystem.application.service.NodeReservationService;
 import io.github.milesreimann.cloudsystem.application.service.NodeService;
 import io.github.milesreimann.cloudsystem.application.service.NodeUsageService;
 import io.github.milesreimann.cloudsystem.application.service.ServerSchedulerService;
@@ -126,14 +127,21 @@ public class ApplicationBeans {
     }
 
     @Bean
+    public NodeReservationService nodeReservationService() {
+        return new NodeReservationService();
+    }
+
+    @Bean
     public ServerSchedulerService serverSchedulingService(
         NodeService nodeService,
+        NodeReservationService nodeReservationService,
         ServerTemplateService serverTemplateService,
         ServerService serverService,
         ServerDeploymentPort serverDeploymentPort
     ) {
         return new ServerSchedulerService(
             nodeService,
+            nodeReservationService,
             serverTemplateService,
             serverService,
             serverDeploymentPort,

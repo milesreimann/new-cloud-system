@@ -1,6 +1,5 @@
 package io.github.milesreimann.cloudsystem.adapter.spring.persistence.model;
 
-import io.github.milesreimann.cloudsystem.api.model.Memory;
 import io.github.milesreimann.cloudsystem.api.model.MemoryUnit;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -16,16 +15,11 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @Data
 @NoArgsConstructor
-public class EmbeddedMemory implements Memory {
+public class EmbeddedMemory {
     @Column(name = "value", nullable = false)
     private long value;
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "unit", nullable = false)
     private MemoryUnit unit;
-
-    @Override
-    public long toBytes() {
-        return unit.toBytes(value);
-    }
 }

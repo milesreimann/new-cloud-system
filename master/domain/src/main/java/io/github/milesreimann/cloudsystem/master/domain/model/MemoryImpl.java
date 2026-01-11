@@ -42,6 +42,39 @@ public class MemoryImpl implements Memory {
     }
 
     @Override
+    public Memory add(Memory other) {
+       if (other == null) {
+           return this;
+       }
+
+        long totalBytes = toBytes() + other.toBytes();
+        return MemoryImpl.fromBytes(totalBytes, unit);
+    }
+
+    @Override
+    public Memory subtract(Memory other) {
+        if (other == null) {
+            return this;
+        }
+
+        long remainingBytes = toBytes() - other.toBytes();
+        if (remainingBytes < 0) {
+            remainingBytes = 0;
+        }
+
+        return MemoryImpl.fromBytes(remainingBytes, unit);
+    }
+
+    @Override
+    public boolean fits(Memory other) {
+        if (other == null) {
+            return false;
+        }
+
+        return toBytes() >= other.toBytes();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         MemoryImpl memory = (MemoryImpl) o;

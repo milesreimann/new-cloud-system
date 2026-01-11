@@ -5,7 +5,6 @@ import io.github.milesreimann.cloudsystem.api.runtime.Node;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
 import io.github.milesreimann.cloudsystem.application.exception.NoSuitableNodeException;
-import io.github.milesreimann.cloudsystem.application.exception.ServerDeploymentException;
 import io.github.milesreimann.cloudsystem.application.exception.ServerTemplateNotFoundException;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerDeploymentPort;
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.NodeFilterStrategy;
@@ -16,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
@@ -29,6 +26,7 @@ public class ServerSchedulerService {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSchedulerService.class);
 
     private final NodeService nodeService;
+    private final NodeReservationService nodeReservationService;
     private final ServerTemplateService serverTemplateService;
     private final ServerService serverService;
     private final ServerDeploymentPort deploymentPort;
@@ -37,6 +35,7 @@ public class ServerSchedulerService {
 
     public ServerSchedulerService(
         NodeService nodeService,
+        NodeReservationService nodeReservationService,
         ServerTemplateService serverTemplateService,
         ServerService serverService,
         ServerDeploymentPort deploymentPort,
@@ -44,6 +43,7 @@ public class ServerSchedulerService {
         List<NodeScoringStrategy> scoringStrategies
     ) {
         this.nodeService = nodeService;
+        this.nodeReservationService = nodeReservationService;
         this.serverTemplateService = serverTemplateService;
         this.serverService = serverService;
         this.deploymentPort = deploymentPort;
@@ -143,62 +143,88 @@ public class ServerSchedulerService {
     }
 
     private CompletableFuture<Server> startServer(ServerTemplate serverTemplate, int position, int totalCount) {
-        return selectNodeForTemplate(serverTemplate)
-            .map(node -> {
-                LOG.debug(
-                    "Selected node '{}' for server {}/{} of template '{}'",
-                    node.getName(), position, totalCount, serverTemplate.getName()
+        List<Node> possibleNodes = determinePossibleNodes(serverTemplate);
+        if (possibleNodes.isEmpty()) {
+            LOG.warn("No suitable nodes found for template '{}' (no nodes passed filter criteria)", serverTemplate.getName());
+            return CompletableFuture.failedFuture(new NoSuitableNodeException(serverTemplate));
+        }
+
+        CompletableFuture<Server> future = new CompletableFuture<>();
+        tryDeployServerOnNode(serverTemplate, position, totalCount, possibleNodes, 0, future);
+        return future;
+    }
+
+    private void tryDeployServerOnNode(
+        ServerTemplate serverTemplate,
+        int position,
+        int totalCount,
+        List<Node> nodes,
+        int nodeIndex,
+        CompletableFuture<Server> future
+    ) {
+        if (nodeIndex >= nodes.size()) {
+            future.completeExceptionally(new NoSuitableNodeException(serverTemplate));
+            return;
+        }
+
+        Node node = nodes.get(nodeIndex);
+        LOG.debug("Trying to deploy server {}/{} on node '{}'", position, totalCount, node.getName());
+
+        if (!nodeReservationService.tryReserve(node, serverTemplate.getRequirements())) {
+            tryDeployServerOnNode(serverTemplate, position, totalCount, nodes, nodeIndex + 1, future);
+            return;
+        }
+
+        LOG.info("Node {} reserved: {}", node.getName(), nodeReservationService.getReserved(node));
+
+        LOG.debug(
+            "Reserved resources on node '{}' for server {}/{} of template '{}'",
+            node.getName(), position, totalCount, serverTemplate.getName()
+        );
+
+        Server server = serverService.addServer(serverTemplate);
+
+        deploymentPort.deployServer(node, server)
+            .thenAccept(_ -> {
+                LOG.info(
+                    "Successfully deployed server {} ({}/{}) for template '{}': {} on node '{}'",
+                    server.getName(), position, totalCount, serverTemplate.getName(), server.getUniqueId(), node.getName()
                 );
 
-                Server server = serverService.addServer(serverTemplate);
-
-                return deploymentPort.deployServer(node, server)
-                    .thenApply(_ -> {
-                        LOG.info(
-                            "Successfully deployed server {} ({}/{}) for template '{}': {} on node '{}'",
-                            server.getName(), position, totalCount, serverTemplate.getName(), server.getUniqueId(), node.getName()
-                        );
-
-                        return server;
-                    })
-                    .exceptionally(t -> {
-                        LOG.error(
-                            "Failed to deploy server {}/{} for template '{}' on node '{}'",
-                            position, totalCount, serverTemplate.getName(), node.getName(), t
-                        );
-
-                        serverService.removeServer(server);
-                        throw new ServerDeploymentException(t);
-                    });
+                future.complete(server);
             })
-            .orElseGet(() -> {
-                LOG.warn(
-                    "No suitable node found for server {}/{} of template '{}' after filtering and scoring",
-                    position, totalCount, serverTemplate.getName()
+            .exceptionally(t -> {
+                LOG.error(
+                    "Failed to deploy server {}/{} for template '{}' on node '{}'",
+                    position, totalCount, serverTemplate.getName(), node.getName(), t
                 );
-                return CompletableFuture.failedFuture(new NoSuitableNodeException(serverTemplate));
+
+                nodeReservationService.release(node, serverTemplate.getRequirements());
+                serverService.removeServer(server);
+
+                tryDeployServerOnNode(serverTemplate, position, totalCount, nodes, nodeIndex + 1, future);
+                return null;
             });
     }
 
-    private Optional<Node> selectNodeForTemplate(ServerTemplate serverTemplate) {
+    private List<Node> determinePossibleNodes(ServerTemplate serverTemplate) {
         List<Node> readyNodes = nodeService.listNodesByStatus(NodeStatus.READY);
         if (readyNodes.isEmpty()) {
             LOG.warn("No nodes in READY status available for template '{}' ", serverTemplate.getName());
-            return Optional.empty();
+            return List.of();
         }
 
-        List<Node> filteredNodes = applyFilters(readyNodes, serverTemplate);
+        List<Node> filteredNodes = filterNodes(readyNodes, serverTemplate);
         if (filteredNodes.isEmpty()) {
             LOG.warn("All {} nodes filtered out for template '{}' (no nodes passed filter criteria)", readyNodes.size(), serverTemplate.getName());
-            return Optional.empty();
+            return List.of();
         }
 
         LOG.trace("{} nodes passed filtering for template '{}'", filteredNodes.size(), serverTemplate.getName());
-
-        return selectBestNode(filteredNodes, serverTemplate);
+        return scoreNodes(filteredNodes, serverTemplate);
     }
 
-    private List<Node> applyFilters(List<Node> nodes, ServerTemplate template) {
+    private List<Node> filterNodes(List<Node> nodes, ServerTemplate template) {
         return filterStrategies.stream()
             .sorted(Comparator.comparingInt(NodeFilterStrategy::getPriority).reversed())
             .reduce(
@@ -208,10 +234,9 @@ public class ServerSchedulerService {
             );
     }
 
-    private Optional<Node> selectBestNode(List<Node> nodes, ServerTemplate template) {
+    private List<Node> scoreNodes(List<Node> nodes, ServerTemplate template) {
         return nodes.stream()
-            .map(node -> Map.entry(node, scoringStrategies.stream().mapToDouble(s -> s.score(node, template)).sum()))
-            .max(Map.Entry.comparingByValue())
-            .map(Map.Entry::getKey);
+            .sorted(Comparator.comparingDouble(node -> -scoringStrategies.stream().mapToDouble(s -> s.score(node, template)).sum()))
+            .toList();
     }
 }

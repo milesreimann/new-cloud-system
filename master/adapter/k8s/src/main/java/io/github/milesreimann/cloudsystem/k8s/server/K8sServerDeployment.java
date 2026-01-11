@@ -82,13 +82,13 @@ public class K8sServerDeployment implements ServerDeploymentPort {
         Resources requirements = serverTemplate.getRequirements();
 
         ResourceRequirementsBuilder builder = new ResourceRequirementsBuilder()
-            .addToRequests(RESOURCES_CPU, new Quantity(String.valueOf(requirements.getCpu())))
+            .addToRequests(RESOURCES_CPU, new Quantity(requirements.getCpu().getMillicores() + requirements.getCpu().getSuffix()))
             .addToRequests(RESOURCES_MEMORY, toMemoryQuantity(requirements.getMemory()));
 
         Resources limits = serverTemplate.getLimits().orElse(requirements);
 
         builder
-            .addToLimits(RESOURCES_CPU, new Quantity(String.valueOf(limits.getCpu())))
+            .addToLimits(RESOURCES_CPU, new Quantity(limits.getCpu().getMillicores() + limits.getCpu().getSuffix()))
             .addToLimits(RESOURCES_MEMORY, toMemoryQuantity(limits.getMemory()));
 
         return builder.build();

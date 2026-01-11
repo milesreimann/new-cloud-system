@@ -22,8 +22,7 @@ public class ResourceAvailabilityStrategy implements NodeFilterStrategy {
         Resources available = node.getCapacity().subtract(node.getUsage());
         Resources required = template.getRequirements();
 
-        return available.getCpu() >= required.getCpu()
-            && available.getMemory().toBytes() >= required.getMemory().toBytes();
+        return available.fits(required);
     }
 
     @Override

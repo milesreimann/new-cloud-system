@@ -9,8 +9,6 @@ import io.github.milesreimann.cloudsystem.api.model.DeploymentType;
 public interface DeploymentMetadata {
     Long getId();
 
-    ServerTemplate getServerTemplate();
-
     DeploymentType getDeploymentType();
 
     String getKey();

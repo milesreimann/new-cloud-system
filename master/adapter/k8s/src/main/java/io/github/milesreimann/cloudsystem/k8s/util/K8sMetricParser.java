@@ -1,9 +1,11 @@
 package io.github.milesreimann.cloudsystem.k8s.util;
 
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.github.milesreimann.cloudsystem.api.model.CPU;
 import io.github.milesreimann.cloudsystem.api.model.Memory;
 import io.github.milesreimann.cloudsystem.api.model.MemoryUnit;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
+import io.github.milesreimann.cloudsystem.master.domain.model.CPUImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.MemoryImpl;
 import io.github.milesreimann.cloudsystem.master.domain.model.ResourcesImpl;
 
@@ -24,19 +26,24 @@ public class K8sMetricParser {
             return ResourcesImpl.empty();
         }
 
-        Quantity cpu = resourceMap.get(RESOURCE_CPU);
-        Quantity memory = resourceMap.get(RESOURCE_MEMORY);
+        Quantity cpuQuantity = resourceMap.get(RESOURCE_CPU);
+        Quantity memoryQuantity = resourceMap.get(RESOURCE_MEMORY);
 
-        return new ResourcesImpl(
-            parseCpu(cpu),
-            parseMemory(memory)
-        );
+        CPU cpu = parseCpu(cpuQuantity);
+        Memory memory = parseMemory(memoryQuantity);
+
+        return new ResourcesImpl(cpu, memory);
     }
 
-    private static double parseCpu(Quantity cpu) {
-        return cpu != null && cpu.getAmount() != null
-            ? cpu.getNumericalAmount().doubleValue()
-            : 0D;
+    private static CPU parseCpu(Quantity cpuQuantity) {
+        if (cpuQuantity == null || cpuQuantity.getAmount() == null) {
+            return CPUImpl.empty();
+        }
+
+        double cores = cpuQuantity.getNumericalAmount().doubleValue();
+        long millicores = (long) (cores * 1000);
+
+        return new CPUImpl(millicores);
     }
 
     private static Memory parseMemory(Quantity memory) {
@@ -51,8 +58,10 @@ public class K8sMetricParser {
             unit = MemoryUnit.KI;
         } else if ("Gi".equalsIgnoreCase(format)) {
             unit = MemoryUnit.GI;
-        } else {
+        } else if ("Mi".equalsIgnoreCase(format)) {
             unit = MemoryUnit.MI;
+        } else {
+            unit = MemoryUnit.B;
         }
 
         long bytes = Quantity.getAmountInBytes(memory).longValue();

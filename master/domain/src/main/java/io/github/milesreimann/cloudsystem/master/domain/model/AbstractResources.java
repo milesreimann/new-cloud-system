@@ -1,5 +1,6 @@
 package io.github.milesreimann.cloudsystem.master.domain.model;
 
+import io.github.milesreimann.cloudsystem.api.model.CPU;
 import io.github.milesreimann.cloudsystem.api.model.Memory;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 
@@ -8,7 +9,7 @@ import io.github.milesreimann.cloudsystem.api.model.Resources;
  * @since 31.12.2025
  */
 public abstract class AbstractResources implements Resources {
-    protected abstract Resources createNew(double cpu, Memory memory);
+    protected abstract Resources createNew(CPU cpu, Memory memory);
 
     @Override
     public Resources add(Resources other) {
@@ -16,9 +17,8 @@ public abstract class AbstractResources implements Resources {
             return this;
         }
 
-        double combinedCpu = getCpu() + other.getCpu();
-        long totalBytes = getMemory().toBytes() + other.getMemory().toBytes();
-        Memory combinedMemory = MemoryImpl.fromBytes(totalBytes, getMemory().getUnit());
+        CPU combinedCpu = getCpu().add(other.getCpu());
+        Memory combinedMemory = getMemory().add(other.getMemory());
 
         return createNew(combinedCpu, combinedMemory);
     }
@@ -29,9 +29,8 @@ public abstract class AbstractResources implements Resources {
             return this;
         }
 
-        double remainingCpu = getCpu() - other.getCpu();
-        long remainingBytes = getMemory().toBytes() - other.getMemory().toBytes();
-        Memory remainingMemory = MemoryImpl.fromBytes(remainingBytes, getMemory().getUnit());
+        CPU remainingCpu = getCpu().subtract(other.getCpu());
+        Memory remainingMemory = getMemory().subtract(other.getMemory());
 
         return createNew(remainingCpu, remainingMemory);
     }
@@ -42,7 +41,6 @@ public abstract class AbstractResources implements Resources {
             return false;
         }
 
-        return getCpu() >= required.getCpu()
-            && getMemory().toBytes() >= required.getMemory().toBytes();
+        return getCpu().fits(required.getCpu()) && getMemory().fits(required.getMemory());
     }
 }

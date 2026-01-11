@@ -1,4 +1,4 @@
-package io.github.milesreimann.cloudsystem.adapter.spring.out;
+package io.github.milesreimann.cloudsystem.adapter.spring.persistence.adapter;
 
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;

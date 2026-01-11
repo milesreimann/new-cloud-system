@@ -1,21 +1,18 @@
 package io.github.milesreimann.cloudsystem.adapter.spring.persistence.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  * @author Miles R.
- * @since 31.12.2025
+ * @since 11.01.2026
  */
 @Embeddable
 @Data
 @NoArgsConstructor
-public class EmbeddedResources {
-    @Embedded
-    private EmbeddedCPU cpu;
-
-    @Embedded
-    private EmbeddedMemory memory;
+public class EmbeddedCPU {
+    @Column(name = "millicores", nullable = false)
+    private long millicores;
 }

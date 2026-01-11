@@ -1,6 +1,5 @@
 package io.github.milesreimann.cloudsystem.adapter.spring.persistence.entity;
 
-import io.github.milesreimann.cloudsystem.api.entity.DeploymentMetadata;
 import io.github.milesreimann.cloudsystem.api.model.DeploymentType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +21,7 @@ import lombok.Data;
 @Entity
 @Table(name = "server_deployment_metadata")
 @Data
-public class JpaDeploymentMetadata implements DeploymentMetadata {
+public class JpaDeploymentMetadata {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

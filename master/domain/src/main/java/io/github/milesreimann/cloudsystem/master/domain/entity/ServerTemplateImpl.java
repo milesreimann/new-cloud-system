@@ -112,11 +112,28 @@ public class ServerTemplateImpl implements ServerTemplate {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ServerTemplateImpl that = (ServerTemplateImpl) o;
-        return minServers == that.minServers && active == that.active && Objects.equals(id, that.id) && Objects.equals(abbreviation, that.abbreviation) && Objects.equals(name, that.name) && Objects.equals(group, that.group) && Objects.equals(maxServers, that.maxServers);
+        return minServers == that.minServers && active == that.active && Objects.equals(id, that.id) && Objects.equals(abbreviation, that.abbreviation) && Objects.equals(name, that.name) && Objects.equals(group, that.group) && Objects.equals(maxServers, that.maxServers) && Objects.equals(requirements, that.requirements) && Objects.equals(limits, that.limits) && Objects.equals(deploymentMetadata, that.deploymentMetadata) && Objects.equals(environmentVariables, that.environmentVariables);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, abbreviation, name, group, minServers, maxServers, active);
+        return Objects.hash(id, abbreviation, name, group, minServers, maxServers, requirements, limits, deploymentMetadata, environmentVariables, active);
+    }
+
+    @Override
+    public String toString() {
+        return "ServerTemplateImpl{" +
+            "id=" + id +
+            ", abbreviation='" + abbreviation + '\'' +
+            ", name='" + name + '\'' +
+            ", group=" + group +
+            ", minServers=" + minServers +
+            ", maxServers=" + maxServers +
+            ", requirements=" + requirements +
+            ", limits=" + limits +
+            ", deploymentMetadata=" + deploymentMetadata +
+            ", environmentVariables=" + environmentVariables +
+            ", active=" + active +
+            '}';
     }
 }
