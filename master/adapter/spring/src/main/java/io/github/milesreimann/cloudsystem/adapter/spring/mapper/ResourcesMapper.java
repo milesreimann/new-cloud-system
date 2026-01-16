@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
  * @author Miles R.
  * @since 11.01.2026
  */
-@Mapper(componentModel = "spring", uses = {CPUMapper.class, MemoryMapper.class})
+@Mapper(config = MapStructConfig.class, uses = {CPUMapper.class, MemoryMapper.class})
 public interface ResourcesMapper {
     ResourcesImpl toDomain(EmbeddedResources embedded);
 

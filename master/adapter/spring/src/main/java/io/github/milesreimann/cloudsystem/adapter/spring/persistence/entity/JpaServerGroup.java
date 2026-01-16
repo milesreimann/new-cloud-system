@@ -1,6 +1,5 @@
 package io.github.milesreimann.cloudsystem.adapter.spring.persistence.entity;
 
-import io.github.milesreimann.cloudsystem.api.entity.ServerGroup;
 import io.github.milesreimann.cloudsystem.api.model.ServerGroupType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -25,7 +24,7 @@ import java.util.Set;
 @Entity
 @Table(name = "server_groups")
 @Data
-public class JpaServerGroup implements ServerGroup {
+public class JpaServerGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

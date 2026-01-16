@@ -9,9 +9,13 @@ import org.mapstruct.Mapper;
  * @author Miles R.
  * @since 11.01.2026
  */
-@Mapper(componentModel = "spring")
+@Mapper(config = MapStructConfig.class)
 public interface CPUMapper {
     default CPU toDomain(EmbeddedCPU embedded) {
+        if (embedded == null) {
+            return null;
+        }
+
         return new CPUImpl(embedded.getMillicores());
     }
 

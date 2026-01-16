@@ -6,14 +6,16 @@ import io.github.milesreimann.cloudsystem.master.domain.model.DeploymentMetadata
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.Objects;
+
 /**
  * @author Miles R.
  * @since 11.01.2026
  */
-@Mapper(componentModel = "spring", uses = {ServerTemplateMapper.class})
+@Mapper(config = MapStructConfig.class)
 public abstract class DeploymentMetadataMapper {
     public DeploymentMetadata toDomain(JpaDeploymentMetadata entity) {
-        if (entity == null) return null;
+        Objects.requireNonNull(entity, "entity cannot be null");
 
         return new DeploymentMetadataImpl(
             entity.getId(),
