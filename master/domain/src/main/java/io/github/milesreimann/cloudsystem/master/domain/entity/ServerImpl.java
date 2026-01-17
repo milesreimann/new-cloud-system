@@ -15,6 +15,7 @@ import java.util.UUID;
 public class ServerImpl implements Server {
     private final UUID uniqueId;
     private final long id;
+    private final String nodeName;
     private final ServerTemplate template;
     private final ServerStatus status;
     private final Instant startedAt;
@@ -22,21 +23,24 @@ public class ServerImpl implements Server {
     private ServerImpl(
         UUID uniqueId,
         long id,
+        String nodeName,
         ServerTemplate template,
         ServerStatus status,
         Instant startedAt
     ) {
         this.uniqueId = Objects.requireNonNull(uniqueId, "uniqueId cannot be null");
         this.id = id;
+        this.nodeName = Objects.requireNonNull(nodeName, "nodeName cannot be null");
         this.template = Objects.requireNonNull(template, "template cannot be null");
         this.status = Objects.requireNonNull(status, "status cannot be null");
         this.startedAt = Objects.requireNonNull(startedAt, "startedAt cannot be null");
     }
 
-    public static Server create(long id, ServerTemplate template) {
+    public static Server create(long id, String nodeName, ServerTemplate template) {
         return new ServerImpl(
             UUID.randomUUID(),
             id,
+            nodeName,
             template,
             ServerStatus.CREATING,
             Instant.now()
@@ -56,6 +60,11 @@ public class ServerImpl implements Server {
     @Override
     public String getName() {
         return template.getGroup().getAbbreviation() + "-" + getId();
+    }
+
+    @Override
+    public String getNodeName() {
+        return nodeName;
     }
 
     @Override

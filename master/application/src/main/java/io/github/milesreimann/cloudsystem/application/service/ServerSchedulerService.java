@@ -6,7 +6,6 @@ import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.NodeStatus;
 import io.github.milesreimann.cloudsystem.application.exception.NoSuitableNodeException;
 import io.github.milesreimann.cloudsystem.application.exception.ServerTemplateNotFoundException;
-import io.github.milesreimann.cloudsystem.application.port.out.ServerDeploymentPort;
 import io.github.milesreimann.cloudsystem.application.scheduling.filter.NodeFilterStrategy;
 import io.github.milesreimann.cloudsystem.application.scheduling.scoring.NodeScoringStrategy;
 import org.slf4j.Logger;
@@ -29,7 +28,7 @@ public class ServerSchedulerService {
     private final NodeReservationService nodeReservationService;
     private final ServerTemplateService serverTemplateService;
     private final ServerService serverService;
-    private final ServerDeploymentPort deploymentPort;
+    private final ServerDeploymentService serverDeploymentService;
     private final List<NodeFilterStrategy> filterStrategies;
     private final List<NodeScoringStrategy> scoringStrategies;
 
@@ -38,7 +37,7 @@ public class ServerSchedulerService {
         NodeReservationService nodeReservationService,
         ServerTemplateService serverTemplateService,
         ServerService serverService,
-        ServerDeploymentPort deploymentPort,
+        ServerDeploymentService serverDeploymentService,
         List<NodeFilterStrategy> filterStrategies,
         List<NodeScoringStrategy> scoringStrategies
     ) {
@@ -46,7 +45,7 @@ public class ServerSchedulerService {
         this.nodeReservationService = nodeReservationService;
         this.serverTemplateService = serverTemplateService;
         this.serverService = serverService;
-        this.deploymentPort = deploymentPort;
+        this.serverDeploymentService = serverDeploymentService;
         this.filterStrategies = filterStrategies;
         this.scoringStrategies = scoringStrategies;
     }
@@ -182,9 +181,9 @@ public class ServerSchedulerService {
             node.getName(), position, totalCount, serverTemplate.getName()
         );
 
-        Server server = serverService.addServer(serverTemplate);
+        Server server = serverService.addServer(node.getName(), serverTemplate);
 
-        deploymentPort.deployServer(node, server)
+        serverDeploymentService.deploy(server)
             .thenAccept(_ -> {
                 LOG.info(
                     "Successfully deployed server {} ({}/{}) for template '{}': {} on node '{}'",

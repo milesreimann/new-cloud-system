@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group = 'io.github.milesreimann.cloud'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly(project(':api'))
+    compileOnly(project(':master:domain'))
+    compileOnly(project(':master:application'))
+    implementation 'org.apache.commons:commons-compress:1.28.0'
+}

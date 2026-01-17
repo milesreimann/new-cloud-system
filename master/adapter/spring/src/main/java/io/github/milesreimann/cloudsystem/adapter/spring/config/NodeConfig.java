@@ -41,7 +41,7 @@ public class NodeConfig {
     }
 
     @Bean
-    public NodeMapper nodeMapper() {
+    public K8sNodeMapper nodeMapper() {
         return new K8sNodeMapper();
     }
 

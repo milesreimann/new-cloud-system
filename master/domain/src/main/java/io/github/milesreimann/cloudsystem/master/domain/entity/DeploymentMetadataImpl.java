@@ -1,7 +1,6 @@
-package io.github.milesreimann.cloudsystem.master.domain.model;
+package io.github.milesreimann.cloudsystem.master.domain.entity;
 
 import io.github.milesreimann.cloudsystem.api.entity.DeploymentMetadata;
-import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.DeploymentType;
 
 import java.util.Objects;

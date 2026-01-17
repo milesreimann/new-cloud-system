@@ -16,6 +16,8 @@ public interface Server {
 
     String getName();
 
+    String getNodeName();
+
     ServerTemplate getTemplate();
 
     ServerStatus getStatus();

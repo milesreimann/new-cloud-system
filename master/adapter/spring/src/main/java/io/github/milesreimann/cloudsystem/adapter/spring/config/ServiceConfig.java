@@ -3,7 +3,10 @@ package io.github.milesreimann.cloudsystem.adapter.spring.config;
 import io.github.milesreimann.cloudsystem.application.cache.NodeCache;
 import io.github.milesreimann.cloudsystem.application.cache.ServerCache;
 import io.github.milesreimann.cloudsystem.application.cache.ServerTemplateCache;
+import io.github.milesreimann.cloudsystem.application.port.out.FileDeploymentPort;
+import io.github.milesreimann.cloudsystem.application.port.out.FileLoaderPort;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeRepository;
+import io.github.milesreimann.cloudsystem.application.port.out.NodeUsageProviderPort;
 import io.github.milesreimann.cloudsystem.application.port.out.NodeWatcherPort;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerDeploymentPort;
 import io.github.milesreimann.cloudsystem.application.port.out.ServerTemplateRepository;
@@ -16,10 +19,10 @@ import io.github.milesreimann.cloudsystem.application.service.NodeInitialization
 import io.github.milesreimann.cloudsystem.application.service.NodeReservationService;
 import io.github.milesreimann.cloudsystem.application.service.NodeService;
 import io.github.milesreimann.cloudsystem.application.service.NodeUsageService;
+import io.github.milesreimann.cloudsystem.application.service.ServerDeploymentService;
 import io.github.milesreimann.cloudsystem.application.service.ServerSchedulerService;
 import io.github.milesreimann.cloudsystem.application.service.ServerService;
 import io.github.milesreimann.cloudsystem.application.service.ServerTemplateService;
-import io.github.milesreimann.cloudsystem.k8s.node.K8sNodeUsageProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -58,10 +61,10 @@ public class ServiceConfig {
     @Bean
     public NodeUsageService nodeUsageService(
         NodeCache nodeCache,
-        K8sNodeUsageProvider nodeUsageProvider,
+        NodeUsageProviderPort nodeUsageProviderPort,
         Executor nodeUsageExecutor
     ) {
-        return new NodeUsageService(nodeCache, nodeUsageProvider, nodeUsageExecutor);
+        return new NodeUsageService(nodeCache, nodeUsageProviderPort, nodeUsageExecutor);
     }
 
     @Bean
@@ -80,7 +83,7 @@ public class ServiceConfig {
         NodeReservationService nodeReservationService,
         ServerTemplateService serverTemplateService,
         ServerService serverService,
-        ServerDeploymentPort serverDeploymentPort,
+        ServerDeploymentService serverDeploymentService,
         ResourceAvailabilityStrategy resourceAvailabilityStrategy,
         RequiredLabelStrategy requiredLabelStrategy,
         NodeStatusStrategy nodeStatusStrategy,
@@ -92,7 +95,7 @@ public class ServiceConfig {
             nodeReservationService,
             serverTemplateService,
             serverService,
-            serverDeploymentPort,
+            serverDeploymentService,
             List.of(
                 resourceAvailabilityStrategy,
                 requiredLabelStrategy,
@@ -103,5 +106,14 @@ public class ServiceConfig {
                 leastLoadedScore
             )
         );
+    }
+
+    @Bean
+    public ServerDeploymentService serverDeploymentService(
+        FileLoaderPort fileLoaderPort,
+        FileDeploymentPort fileDeploymentPort,
+        ServerDeploymentPort serverDeploymentPort
+    ) {
+        return new ServerDeploymentService(fileLoaderPort, fileDeploymentPort, serverDeploymentPort);
     }
 }

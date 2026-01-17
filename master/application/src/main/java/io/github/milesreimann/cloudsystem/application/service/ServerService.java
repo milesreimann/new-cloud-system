@@ -22,12 +22,12 @@ public class ServerService {
         this.serverCache = serverCache;
     }
 
-    public synchronized Server addServer(ServerTemplate serverTemplate) {
+    public synchronized Server addServer(String nodeName, ServerTemplate serverTemplate) {
         Object lock = templateLocks.computeIfAbsent(serverTemplate.getId(), _ -> new Object());
 
         synchronized (lock) {
             long id = generateServerId(serverTemplate.getGroup());
-            Server server = ServerImpl.create(id, serverTemplate);
+            Server server = ServerImpl.create(id, nodeName, serverTemplate);
             serverCache.put(server.getUniqueId(), server);
             return server;
         }

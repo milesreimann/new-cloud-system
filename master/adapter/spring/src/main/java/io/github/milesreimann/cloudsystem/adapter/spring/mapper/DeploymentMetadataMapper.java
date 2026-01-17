@@ -2,7 +2,7 @@ package io.github.milesreimann.cloudsystem.adapter.spring.mapper;
 
 import io.github.milesreimann.cloudsystem.adapter.spring.persistence.entity.JpaDeploymentMetadata;
 import io.github.milesreimann.cloudsystem.api.entity.DeploymentMetadata;
-import io.github.milesreimann.cloudsystem.master.domain.model.DeploymentMetadataImpl;
+import io.github.milesreimann.cloudsystem.master.domain.entity.DeploymentMetadataImpl;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -73,6 +73,11 @@ public class ServerGroupImpl implements ServerGroup {
     }
 
     @Override
+    public boolean isStatic() {
+        return type == ServerGroupType.STATIC;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ServerGroupImpl that = (ServerGroupImpl) o;

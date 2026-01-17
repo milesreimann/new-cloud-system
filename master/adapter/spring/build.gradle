@@ -22,6 +22,7 @@ dependencies {
     implementation(project(':master:domain'))
     implementation(project(':master:application'))
     implementation(project(':master:adapter:k8s'))
+    implementation(project(':master:adapter:filesystem'))
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

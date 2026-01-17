@@ -7,11 +7,11 @@ import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
 import io.github.milesreimann.cloudsystem.adapter.spring.persistence.entity.JpaServerTemplate;
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 import io.github.milesreimann.cloudsystem.master.domain.entity.ServerTemplateImpl;
-import lombok.RequiredArgsConstructor;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,11 +21,19 @@ import java.util.Optional;
  * @author Miles R.
  * @since 28.12.2025
  */
-@Mapper(config = MapStructConfig.class, uses = {ResourcesMapper.class, DeploymentMetadataMapper.class})
-@RequiredArgsConstructor
+@Mapper(
+    config = MapStructConfig.class,
+    uses = {ResourcesMapper.class, DeploymentMetadataMapper.class, ServerGroupMapper.class}
+)
 public abstract class ServerTemplateMapper {
-    protected final ResourcesMapper resourcesMapper;
-    protected final DeploymentMetadataMapper deploymentMetadataMapper;
+    @Autowired
+    protected ResourcesMapper resourcesMapper;
+
+    @Autowired
+    protected DeploymentMetadataMapper deploymentMetadataMapper;
+
+    @Autowired
+    protected ServerGroupMapper serverGroupMapper;
 
     public ServerTemplate toDomain(JpaServerTemplate entity) {
         Objects.requireNonNull(entity, "entity cannot be null");
@@ -34,7 +42,7 @@ public abstract class ServerTemplateMapper {
             entity.getId(),
             entity.getAbbreviation(),
             entity.getName(),
-            entity.getGroup(),
+            serverGroupMapper.toDomain(entity.getGroup()),
             entity.getMinServers(),
             entity.getMaxServers(),
             resourcesMapper.toDomain(entity.getRequirements()),

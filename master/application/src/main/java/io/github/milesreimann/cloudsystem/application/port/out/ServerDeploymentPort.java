@@ -1,7 +1,7 @@
 package io.github.milesreimann.cloudsystem.application.port.out;
 
 import io.github.milesreimann.cloudsystem.api.entity.Server;
-import io.github.milesreimann.cloudsystem.api.runtime.Node;
+import io.github.milesreimann.cloudsystem.application.model.ServerFileBundleDeployment;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -10,5 +10,5 @@ import java.util.concurrent.CompletableFuture;
  * @since 07.01.26
  */
 public interface ServerDeploymentPort {
-    CompletableFuture<Void> deployServer(Node targetNode, Server server);
+    CompletableFuture<Void> deployServer(Server server, ServerFileBundleDeployment bundleDeployment);
 }
