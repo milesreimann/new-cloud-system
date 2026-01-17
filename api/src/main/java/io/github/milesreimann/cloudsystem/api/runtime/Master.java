@@ -10,6 +10,8 @@ import java.util.UUID;
  * @since 01.01.2026
  */
 public interface Master {
+    // Future
+
     UUID getUniqueId();
 
     String getName();

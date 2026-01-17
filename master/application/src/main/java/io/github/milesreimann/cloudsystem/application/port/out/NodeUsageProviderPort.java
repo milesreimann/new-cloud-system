@@ -2,10 +2,12 @@ package io.github.milesreimann.cloudsystem.application.port.out;
 
 import io.github.milesreimann.cloudsystem.api.model.Resources;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author Miles R.
  * @since 31.12.2025
  */
 public interface NodeUsageProviderPort {
-    Resources getUsage(String nodeName);
+    CompletableFuture<Resources> getUsage(String nodeName);
 }

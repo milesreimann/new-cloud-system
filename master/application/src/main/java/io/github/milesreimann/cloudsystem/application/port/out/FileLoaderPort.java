@@ -2,7 +2,7 @@ package io.github.milesreimann.cloudsystem.application.port.out;
 
 import io.github.milesreimann.cloudsystem.api.entity.ServerGroup;
 import io.github.milesreimann.cloudsystem.api.entity.ServerTemplate;
-import io.github.milesreimann.cloudsystem.application.model.ServerFileBundle;
+import io.github.milesreimann.cloudsystem.application.deployment.model.ServerFileBundle;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -2,21 +2,21 @@ package io.github.milesreimann.cloudsystem.application.listener;
 
 import io.github.milesreimann.cloudsystem.api.event.EventListener;
 import io.github.milesreimann.cloudsystem.api.event.ServerTemplateUpdateEvent;
-import io.github.milesreimann.cloudsystem.application.service.ServerSchedulerService;
+import io.github.milesreimann.cloudsystem.application.port.in.server.ScheduleServersUseCase;
 
 /**
  * @author Miles R.
  * @since 01.01.2026
  */
 public class ServerTemplateUpdateListener implements EventListener<ServerTemplateUpdateEvent> {
-    private final ServerSchedulerService serverSchedulingService;
+    private final ScheduleServersUseCase scheduleServersUseCase;
 
-    public ServerTemplateUpdateListener(ServerSchedulerService serverSchedulingService) {
-        this.serverSchedulingService = serverSchedulingService;
+    public ServerTemplateUpdateListener(ScheduleServersUseCase scheduleServersUseCase) {
+        this.scheduleServersUseCase = scheduleServersUseCase;
     }
 
     @Override
     public void handle(ServerTemplateUpdateEvent event) {
-        serverSchedulingService.scheduleServerTemplate(event.getServerTemplate().getId());
+        scheduleServersUseCase.scheduleTemplate(event.getServerTemplate().getId());
     }
 }
