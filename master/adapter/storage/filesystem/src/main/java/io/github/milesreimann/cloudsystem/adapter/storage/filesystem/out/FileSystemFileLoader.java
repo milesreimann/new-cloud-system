@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 /**
@@ -26,25 +27,33 @@ public class FileSystemFileLoader implements FileLoaderPort {
     private static final String TEMPLATES_PATH = "templates";
 
     private final Path basePath;
+    private final Executor executor;
 
-    public FileSystemFileLoader(Path basePath) {
+    public FileSystemFileLoader(Path basePath, Executor executor) {
         this.basePath = basePath;
+        this.executor = executor;
     }
 
     @Override
     public CompletableFuture<ServerFileBundle> loadServerGroupFiles(ServerGroup serverGroup) {
-        return CompletableFuture.supplyAsync(() -> {
-            Path groupPath = basePath.resolve(GROUPS_PATH).resolve(serverGroup.getAbbreviation());
-            return loadFilesFromDirectory(groupPath, FileSource.SERVER_GROUP);
-        });
+        return CompletableFuture.supplyAsync(
+            () -> {
+                Path groupPath = basePath.resolve(GROUPS_PATH).resolve(serverGroup.getAbbreviation());
+                return loadFilesFromDirectory(groupPath, FileSource.SERVER_GROUP);
+            },
+            executor
+        );
     }
 
     @Override
     public CompletableFuture<ServerFileBundle> loadServerTemplateFiles(ServerTemplate serverTemplate) {
-        return CompletableFuture.supplyAsync(() -> {
-            Path templatePath = basePath.resolve(TEMPLATES_PATH).resolve(serverTemplate.getAbbreviation());
-            return loadFilesFromDirectory(templatePath, FileSource.SERVER_TEMPLATE);
-        });
+        return CompletableFuture.supplyAsync(
+            () -> {
+                Path templatePath = basePath.resolve(TEMPLATES_PATH).resolve(serverTemplate.getAbbreviation());
+                return loadFilesFromDirectory(templatePath, FileSource.SERVER_TEMPLATE);
+            },
+            executor
+        );
     }
 
     private ServerFileBundle loadFilesFromDirectory(Path directory, FileSource source) {

@@ -25,7 +25,7 @@ public class KubernetesNodeWatcher implements Watcher<io.fabric8.kubernetes.api.
 
     private final KubernetesNodeMapper nodeMapper;
     private final NodeCache nodeCache;
-    private final NodeWatcherRetryPolicy nodeWatcherReconnectHandler;
+    private final NodeWatcherRetryPolicy retryPolicy;
     private final KubernetesClient kubernetesClient;
 
     private final AtomicReference<Watch> watch = new AtomicReference<>();
@@ -34,12 +34,12 @@ public class KubernetesNodeWatcher implements Watcher<io.fabric8.kubernetes.api.
     public KubernetesNodeWatcher(
         KubernetesNodeMapper nodeMapper,
         NodeCache nodeCache,
-        NodeWatcherRetryPolicy nodeWatcherReconnectHandler,
+        NodeWatcherRetryPolicy retryPolicy,
         KubernetesClient kubernetesClient
     ) {
         this.nodeMapper = nodeMapper;
         this.nodeCache = nodeCache;
-        this.nodeWatcherReconnectHandler = nodeWatcherReconnectHandler;
+        this.retryPolicy = retryPolicy;
         this.kubernetesClient = kubernetesClient;
     }
 
@@ -97,7 +97,7 @@ public class KubernetesNodeWatcher implements Watcher<io.fabric8.kubernetes.api.
         try {
             Watch newWatch = kubernetesClient.nodes().watch(this);
             watch.set(newWatch);
-            nodeWatcherReconnectHandler.reset();
+            retryPolicy.reset();
             LOG.info("NodeWatcher started successfully");
         } catch (Exception e) {
             LOG.error("Failed to start NodeWatcher", e);
@@ -152,13 +152,13 @@ public class KubernetesNodeWatcher implements Watcher<io.fabric8.kubernetes.api.
     }
 
     private void attemptReconnect() {
-        if (!nodeWatcherReconnectHandler.shouldReconnect()) {
+        if (!retryPolicy.shouldReconnect()) {
             running.set(false);
             return;
         }
 
         try {
-            nodeWatcherReconnectHandler.attemptReconnect(this::startWatch);
+            retryPolicy.attemptReconnect(this::startWatch);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOG.error("Reconnect interrupted", e);

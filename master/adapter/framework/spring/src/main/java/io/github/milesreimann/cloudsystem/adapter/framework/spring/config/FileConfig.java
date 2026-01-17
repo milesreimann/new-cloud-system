@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.concurrent.Executor;
 
 /**
  * @author Miles R.
@@ -30,8 +31,8 @@ public class FileConfig {
     }
 
     @Bean
-    public FileLoaderPort fileLoaderPort() {
-        return new FileSystemFileLoader(BASE_PATH);
+    public FileLoaderPort fileLoaderPort(Executor executor) {
+        return new FileSystemFileLoader(BASE_PATH, executor);
     }
 
     @Bean

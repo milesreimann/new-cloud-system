@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -18,26 +19,35 @@ import java.util.zip.ZipOutputStream;
  * @since 17.01.2026
  */
 public class ZipFileArchiver implements FileArchiverPort {
+    private final Executor executor;
+
+    public ZipFileArchiver(Executor executor) {
+        this.executor = executor;
+    }
+
     @Override
     public CompletableFuture<ArchivedServerFiles> archive(ServerFileBundle bundle) {
-        return CompletableFuture.supplyAsync(() -> {
-            try (
-                ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-                ZipOutputStream zipOutputStream = new ZipOutputStream(byteOutputStream)
-            ) {
-                for (Map.Entry<String, ServerFile> entry : bundle.files().entrySet()) {
-                    ZipEntry zipEntry = new ZipEntry(entry.getKey());
-                    zipOutputStream.putNextEntry(zipEntry);
-                    zipOutputStream.write(entry.getValue().content());
-                    zipOutputStream.closeEntry();
+        return CompletableFuture.supplyAsync(
+            () -> {
+                try (
+                    ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+                    ZipOutputStream zipOutputStream = new ZipOutputStream(byteOutputStream)
+                ) {
+                    for (Map.Entry<String, ServerFile> entry : bundle.files().entrySet()) {
+                        ZipEntry zipEntry = new ZipEntry(entry.getKey());
+                        zipOutputStream.putNextEntry(zipEntry);
+                        zipOutputStream.write(entry.getValue().content());
+                        zipOutputStream.closeEntry();
+                    }
+
+                    zipOutputStream.finish();
+
+                    return new ArchivedServerFiles(byteOutputStream.toByteArray(), ArchiveFormat.ZIP);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to archive bundle as zip", e);
                 }
-
-                zipOutputStream.finish();
-
-                return new ArchivedServerFiles(byteOutputStream.toByteArray(), ArchiveFormat.ZIP);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to archive bundle as zip", e);
-            }
-        });
+            },
+            executor
+        );
     }
 }

@@ -8,6 +8,9 @@ import java.util.Objects;
  * @since 10.01.2026
  */
 public class KubernetesStringSanitizer {
+    private KubernetesStringSanitizer() {
+    }
+
     public static String sanitize(String string) {
         return Objects.requireNonNull(string)
             .toLowerCase(Locale.ROOT)

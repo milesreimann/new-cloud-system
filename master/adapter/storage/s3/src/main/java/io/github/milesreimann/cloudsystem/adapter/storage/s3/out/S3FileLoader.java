@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * @author Miles R.
@@ -27,27 +28,35 @@ public class S3FileLoader implements FileLoaderPort {
     private final S3Client s3Client;
     private final String bucketName;
     private final String basePrefix;
+    private final Executor executor;
 
-    public S3FileLoader(S3Client s3Client, String bucketName, String basePrefix) {
+    public S3FileLoader(S3Client s3Client, String bucketName, String basePrefix, Executor executor) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
         this.basePrefix = basePrefix;
+        this.executor = executor;
     }
 
     @Override
     public CompletableFuture<ServerFileBundle> loadServerGroupFiles(ServerGroup serverGroup) {
-        return CompletableFuture.supplyAsync(() -> {
-            String prefix = String.format("%s/%s/%s/", basePrefix, GROUPS_PATH, serverGroup.getAbbreviation());
-            return loadFilesFromS3(prefix, FileSource.SERVER_GROUP);
-        });
+        return CompletableFuture.supplyAsync(
+            () -> {
+                String prefix = String.format("%s/%s/%s/", basePrefix, GROUPS_PATH, serverGroup.getAbbreviation());
+                return loadFilesFromS3(prefix, FileSource.SERVER_GROUP);
+            },
+            executor
+        );
     }
 
     @Override
     public CompletableFuture<ServerFileBundle> loadServerTemplateFiles(ServerTemplate serverTemplate) {
-        return CompletableFuture.supplyAsync(() -> {
-            String prefix = String.format("%s/%s/%s/", basePrefix, TEMPLATES_PATH, serverTemplate.getAbbreviation());
-            return loadFilesFromS3(prefix, FileSource.SERVER_TEMPLATE);
-        });
+        return CompletableFuture.supplyAsync(
+            () -> {
+                String prefix = String.format("%s/%s/%s/", basePrefix, TEMPLATES_PATH, serverTemplate.getAbbreviation());
+                return loadFilesFromS3(prefix, FileSource.SERVER_TEMPLATE);
+            },
+            executor
+        );
     }
 
     private ServerFileBundle loadFilesFromS3(String prefix, FileSource source) {
